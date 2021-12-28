@@ -6,10 +6,6 @@ import javafx.scene.layout.HBox;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 
-import java.util.Arrays;
-
-import static java.lang.System.out;
-
 public class GenotypeText {
 
     private AbstractMap map;

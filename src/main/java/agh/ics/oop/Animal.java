@@ -16,11 +16,14 @@ public class Animal {
     private int energyLoss;
     private int lifeLength;
     private int childrenNumber;
+    private Animal trackable_ancestor;
+    private int descendants_number = 0;
+    private boolean is_tracked = false;
     private ArrayList<IPositionChangeObserver> maplist;
-
     public Animal(AbstractMap map, Vector2d position, int[] genotype, int energy, int direction)
     {
         this.map = map;
+        this.trackable_ancestor = null;
         this.energyLoss = this.map.energyLoss;
         this.energy = energy;
         this.genotype = genotype;
@@ -216,6 +219,38 @@ public class Animal {
             }
 
     }
+
+    public void setAncestor(Animal ancestor)
+    {
+        this.trackable_ancestor = ancestor;
+    }
+
+    public int getDescendants_number()
+    {
+        return this.descendants_number;
+    }
+
+    public Animal getTrackable_ancestor()
+    {
+        return this.trackable_ancestor;
+    }
+
+    public boolean get_if_tracked()
+    {
+        return this.is_tracked;
+    }
+
+    public void get_to_track(Animal tracked)
+    {
+        tracked.is_tracked = true;
+    }
+
+    public void addDescendant()
+    {
+        this.descendants_number += 1;
+    }
+
+
 
     public void addAChild()
     {

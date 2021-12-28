@@ -71,6 +71,12 @@ public class SimulationEngine implements IEngine, Runnable
         }
     }
 
+    public boolean isPaused()
+    {
+        return this.pause;
+    }
+
+
     public void addObserver(ISimulationUpdate new_observer)
     {
         this.observers.add(new_observer);

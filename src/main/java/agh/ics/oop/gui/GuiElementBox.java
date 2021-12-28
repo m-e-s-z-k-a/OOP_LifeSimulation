@@ -1,5 +1,4 @@
 package agh.ics.oop.gui;
-import agh.ics.oop.AbstractMap;
 import agh.ics.oop.Animal;
 import agh.ics.oop.Plant;
 import javafx.geometry.Pos;

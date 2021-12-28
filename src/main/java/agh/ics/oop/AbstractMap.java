@@ -256,14 +256,41 @@ public abstract class AbstractMap implements IWorldMap, IPositionChangeObserver 
                 if ((double) the_couple.get(0).getEnergy() >= (double) this.startEnergy / 2 && (double) the_couple.get(1).getEnergy() >= (double) this.startEnergy / 2) {
                     int[] new_animal_genotype = distribute_the_genes(the_couple);
                     int child_energy = 0;
+                    boolean celebrity_child = false;
+                    boolean distant_celebrity_child = false;
                     for (Animal parent : the_couple) {
                         child_energy += ((0.25) * parent.getEnergy());
                         parent.subtractEnergy((int) ((0.25) * parent.getEnergy()));
                         parent.addAChild();
+                        if (parent.get_if_tracked())
+                        {
+                            celebrity_child = true;
+                        }
+                        if (parent.getTrackable_ancestor() != null)
+                        {
+                            distant_celebrity_child = true;
+                        }
                     }
                     int child_direction = new Random().nextInt(8);
-                    place(new Animal(this, animal_positions, new_animal_genotype, child_energy, child_direction));
-                    addToGenotypesList(new Animal(this, animal_positions, new_animal_genotype, child_energy, child_direction));
+                    Animal child = new Animal(this, animal_positions, new_animal_genotype, child_energy, child_direction);
+                    place(child);
+                    if (celebrity_child)
+                    {
+                        for(Animal parent: the_couple)
+                        {
+                            if (parent.get_if_tracked())
+                            {
+                                parent.addDescendant();
+                                child.setAncestor(parent);
+                            }
+                            if (parent.getTrackable_ancestor() != null)
+                            {
+                                parent.getTrackable_ancestor().addDescendant();
+                                child.setAncestor(parent.getTrackable_ancestor());
+                            }
+                        }
+                    }
+                    addToGenotypesList(child);
                     this.animals_number += 1;
                     this.daily_children_number += 1;
                 }
@@ -474,7 +501,7 @@ public abstract class AbstractMap implements IWorldMap, IPositionChangeObserver 
         {
             for(Animal animals_to_check: this.animals.get(animals_positions))
             {
-                if (animals_to_check.getGenotype().equals(get_dominant_genotype))
+                if (Arrays.equals(animals_to_check.getGenotype(), get_dominant_genotype))
                 {
                     dom_positions.add(animals_to_check.getPosition());
                 }

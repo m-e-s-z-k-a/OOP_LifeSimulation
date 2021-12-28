@@ -34,8 +34,6 @@ public class App  extends Application implements ISimulationUpdate
     private GenotypeText text2;
     private FileData fileData1;
     private FileData fileData2;
-    private LinkedHashMap<Vector2d, ArrayList<Animal>> animals;
-    private LinkedHashMap<Vector2d, Plant> plants;
     private GridPane gridPane1;
     private GridPane gridPane2;
     private SimulationEngine engine1;
@@ -46,7 +44,6 @@ public class App  extends Application implements ISimulationUpdate
     private Vector2d lower_left;
     private int columns_number;
     private int rows_number;
-    private Stage secondaryStage;
 
     public void start(Stage primaryStage)
     {
@@ -77,16 +74,21 @@ public class App  extends Application implements ISimulationUpdate
             button_pause1.setOnAction(e1 ->
             {
                 this.engine1.pauseandrun();
+
                 button_save1.setOnAction(ev1 ->
                 {
+                    if(this.engine1.isPaused()){
                     try {
                         this.fileData1.exportToCSV();
                     } catch (IOException ex) {
                         ex.printStackTrace();
-                    }
+                    }}
                 });
                 b_get_dom_gen_animals1.setOnAction( event ->{
+                    if(this.engine1.isPaused())
+                    {
                     modify_dom_animals(this.bordersmap, this.gridPane1);
+                    }
                 });
             });
             button_pause2.setOnAction(e2 ->
@@ -94,14 +96,18 @@ public class App  extends Application implements ISimulationUpdate
                 this.engine2.pauseandrun();
                 button_save2.setOnAction(ev1 ->
                 {
+                    if(this.engine2.isPaused()){
                     try {
                         this.fileData2.exportToCSV();
                     } catch (IOException ex) {
                         ex.printStackTrace();
-                    }
+                    }}
                 });
                 b_get_dom_gen_animals2.setOnAction(event -> {
+                    if(this.engine2.isPaused())
+                    {
                     modify_dom_animals(this.foldablemap, this.gridPane2);
+                    }
                 });
             });
             HBox buttons_hbox1 = new HBox(button_pause1, button_save1, b_get_dom_gen_animals1);
@@ -200,16 +206,28 @@ public class App  extends Application implements ISimulationUpdate
            {Animal animal_to_show = animals_to_show_list.get(new Random().nextInt(animals_to_show_list.size()));
            Button button = GuiElementBox.createGuiButton(animal_to_show);
            Text genotype = new Text();
+           Button track_button = new Button("track this animal");
            Button genotype_button = new Button("get genotype");
-           VBox genotype_vbox = new VBox(genotype_button, genotype);
+           HBox buttons_hbox = new HBox(genotype_button, track_button);
+           buttons_hbox.setAlignment(Pos.CENTER);
+           VBox genotype_vbox = new VBox(buttons_hbox, genotype);
            genotype_vbox.setAlignment(Pos.CENTER);
            genotype_vbox.setSpacing(10);
            Scene new_scene = new Scene(genotype_vbox, 420, 150);
            Stage new_stage = new Stage();
+           Stage tracking_stage = new Stage();
+           TrackingText trackingText = new TrackingText(animal_to_show, map);
+           Scene tracking_scene = new Scene(trackingText.getTrackingInfo(), 400, 400);
            new_stage.setScene(new_scene);
+               tracking_stage.setScene(tracking_scene);
                genotype_button.setOnAction(e ->{
                     genotype.setText(Arrays.toString(animal_to_show.getGenotype()));
                }) ;
+               track_button.setOnAction(e ->
+               {
+                   //was supposed to be tracking window; didn't manage to finish it though, so the values don't change
+                   tracking_stage.show();
+               });
            button.setStyle("-fx-background-color: transparent");
            button.setOnAction(e ->
            {
