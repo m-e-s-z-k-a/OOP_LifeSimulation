@@ -11,6 +11,8 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleButton;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.control.Label;
 import javafx.scene.text.Text;
@@ -24,6 +26,7 @@ import static java.lang.System.out;
 public class App  extends Application implements ISimulationUpdate
 {
     private AbstractMap bordersmap;
+    static Image image_dom = new Image("/kropa_dominanta.png");
     private AbstractMap foldablemap;
     private DataChart dataChart1;
     private DataChart dataChart2;
@@ -82,7 +85,9 @@ public class App  extends Application implements ISimulationUpdate
                         ex.printStackTrace();
                     }
                 });
-                b_get_dom_gen_animals1.setOnAction( event ->{});
+                b_get_dom_gen_animals1.setOnAction( event ->{
+                    modify_dom_animals(this.bordersmap, this.gridPane1);
+                });
             });
             button_pause2.setOnAction(e2 ->
             {
@@ -95,7 +100,9 @@ public class App  extends Application implements ISimulationUpdate
                         ex.printStackTrace();
                     }
                 });
-                b_get_dom_gen_animals2.setOnAction(event -> {});
+                b_get_dom_gen_animals2.setOnAction(event -> {
+                    modify_dom_animals(this.foldablemap, this.gridPane2);
+                });
             });
             HBox buttons_hbox1 = new HBox(button_pause1, button_save1, b_get_dom_gen_animals1);
             buttons_hbox1.setAlignment(Pos.CENTER);
@@ -156,7 +163,6 @@ public class App  extends Application implements ISimulationUpdate
         gridPane.getChildren().clear();
         gridPane.getColumnConstraints().clear();
         gridPane.getRowConstraints().clear();
-        gridPane.setGridLinesVisible(true);
         LinkedHashMap<Vector2d, Plant> plants_copy = new LinkedHashMap<>(map.getPlantsHashMap());
         LinkedHashMap<Vector2d, ArrayList<Animal>> animals_copy = new LinkedHashMap<>(map.getAnimalsHashMap());
         Label axis = new Label("y\\x");
@@ -220,6 +226,7 @@ public class App  extends Application implements ISimulationUpdate
                 gridPane.setHalignment(vbox, HPos.CENTER);
             }
         }
+        gridPane.setGridLinesVisible(true);
     }
 
     public void mapUpdate(AbstractMap map, GridPane gridPane, SimulationEngine engine, DataChart dataChart, GenotypeText text, FileData fileData)
@@ -231,6 +238,23 @@ public class App  extends Application implements ISimulationUpdate
             dataChart.updateCharts();
             fileData.updateFileData();
         });
+    }
+
+    public void modify_dom_animals(AbstractMap map, GridPane grid)
+    {
+        grid.setGridLinesVisible(false);
+        ArrayList<Vector2d> positions_to_modify = map.get_dom_animals_positions();
+        ImageView imageView = new ImageView(image_dom);
+        imageView.setFitHeight(20);
+        imageView.setFitWidth(20);
+        VBox vbox_to_add = new VBox(imageView);
+        vbox_to_add.setAlignment(Pos.CENTER);
+        for(Vector2d grid_position: positions_to_modify)
+        {
+            grid.add(vbox_to_add, grid_position.x - lower_left.x + 1, upper_right.y - grid_position.y +1);
+        }
+        grid.setGridLinesVisible(true);
+
     }
 
 }

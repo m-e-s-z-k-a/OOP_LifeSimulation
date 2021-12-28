@@ -33,8 +33,7 @@ public abstract class AbstractMap implements IWorldMap, IPositionChangeObserver 
     protected LinkedHashMap<Vector2d, ArrayList<Animal>> animals = new LinkedHashMap<>();
     protected LinkedHashMap<Vector2d, Plant> plants = new LinkedHashMap<>();
 
-    public AbstractMap(int width, int height, double jungleRatio, int plantEnergy, int energyLoss, int startEnergy)
-    {
+    public AbstractMap(int width, int height, double jungleRatio, int plantEnergy, int energyLoss, int startEnergy) {
         this.energyLoss = energyLoss;
         this.jungleRatio = jungleRatio;
         this.width = width;
@@ -55,42 +54,33 @@ public abstract class AbstractMap implements IWorldMap, IPositionChangeObserver 
         this.setCoordinates();
     }
 
-    public void setCoordinates()
-    {
+    public void setCoordinates() {
         this.lower_left = new Vector2d(0, 0);
-        this.upper_right = new Vector2d(width-1, height-1);
-        this.jungle_lowerleft = new Vector2d((int)((width/2) - (width*jungleRatio)/2),(int)((height/2)-((height)*jungleRatio)/2));
-        this.jungle_upperright = new Vector2d((int)((width/2)+(width*jungleRatio)/2), (int)((height/2)+(height*jungleRatio)/2));
+        this.upper_right = new Vector2d(width - 1, height - 1);
+        this.jungle_lowerleft = new Vector2d((int) ((width / 2) - (width * jungleRatio) / 2), (int) ((height / 2) - ((height) * jungleRatio) / 2));
+        this.jungle_upperright = new Vector2d((int) ((width / 2) + (width * jungleRatio) / 2), (int) ((height / 2) + (height * jungleRatio) / 2));
     }
 
-    public Vector2d get_upper_right()
-    {
+    public Vector2d get_upper_right() {
         setCoordinates();
         return this.upper_right;
     }
 
-    public Vector2d get_lower_left()
-    {
+    public Vector2d get_lower_left() {
         setCoordinates();
         return this.lower_left;
     }
 
-    public boolean isOccupied(Vector2d position)
-    {
+    public boolean isOccupied(Vector2d position) {
         return this.objectAt(position) != null;
     }
 
-    public boolean place(Animal animal)
-    {
-        if (this.canMoveTo(animal.getPosition()))
-        {
-            if (this.animals.containsKey(animal.getPosition()))
-            {
+    public boolean place(Animal animal) {
+        if (this.canMoveTo(animal.getPosition())) {
+            if (this.animals.containsKey(animal.getPosition())) {
                 ArrayList<Animal> animals_here = this.animals.get(animal.getPosition());
                 animals_here.add(animal);
-            }
-            else
-            {
+            } else {
                 ArrayList<Animal> animals_here = new ArrayList<>();
                 animals_here.add(animal);
                 this.animals.put(animal.getPosition(), animals_here);
@@ -102,93 +92,71 @@ public abstract class AbstractMap implements IWorldMap, IPositionChangeObserver 
     }
 
 
-    public Object objectAt(Vector2d position)
-    {
-        if(this.animals.containsKey(position))
-        {
+    public Object objectAt(Vector2d position) {
+        if (this.animals.containsKey(position)) {
             return this.animals.get(position);
         }
-        if(this.plants.containsKey(position))
-        {
+        if (this.plants.containsKey(position)) {
             return this.plants.get(position);
         }
         return null;
     }
 
-    public boolean isInJungle(Vector2d position)
-    {
+    public boolean isInJungle(Vector2d position) {
         return (this.jungle_lowerleft.precedes(position) && this.jungle_upperright.follows(position));
     }
 
-    public void seedPlants()
-    {
+    public void seedPlants() {
         ArrayList<Vector2d> jungle_free_spots = new ArrayList<>();
         ArrayList<Vector2d> plain_free_spots = new ArrayList<>();
-        for(int i = this.lower_left.x; i <= this.upper_right.x; i++)
-        {
-            for(int j = this.lower_left.y; j<= this.upper_right.y; j++)
-            {
+        for (int i = this.lower_left.x; i <= this.upper_right.x; i++) {
+            for (int j = this.lower_left.y; j <= this.upper_right.y; j++) {
                 Vector2d location = new Vector2d(i, j);
-                if (objectAt(location) == null)
-                {
-                    if (isInJungle(location))
-                    {
+                if (objectAt(location) == null) {
+                    if (isInJungle(location)) {
                         jungle_free_spots.add(location);
 
-                    }
-                    else
-                    {
+                    } else {
                         plain_free_spots.add(location);
 
                     }
                 }
             }
         }
-        if (plain_free_spots.size() > 0)
-        {
+        if (plain_free_spots.size() > 0) {
             Vector2d new_plain_plant;
-            do
-            {
+            do {
                 new_plain_plant = plain_free_spots.get((new Random()).nextInt(plain_free_spots.size()));
-            }while (this.objectAt(new_plain_plant) != null);
+            } while (this.objectAt(new_plain_plant) != null);
             this.plants.put(new_plain_plant, new Plant(this, new_plain_plant, this.plantEnergy));
             this.plants_number += 1;
         }
-        if (jungle_free_spots.size() > 0)
-        {
+        if (jungle_free_spots.size() > 0) {
             Vector2d new_jungle_plant;
-            do
-            {
+            do {
                 new_jungle_plant = jungle_free_spots.get((new Random()).nextInt(jungle_free_spots.size()));
-            }while (this.objectAt(new_jungle_plant) != null);
+            } while (this.objectAt(new_jungle_plant) != null);
             this.plants.put(new_jungle_plant, new Plant(this, new_jungle_plant, this.plantEnergy));
             this.plants_number += 1;
         }
     }
 
-    public boolean plantsHere(Vector2d position)
-    {
+    public boolean plantsHere(Vector2d position) {
         return (objectAt(position) instanceof Plant);
     }
 
-    public void eatingPlants()
-    {
+    public void eatingPlants() {
         LinkedHashMap<Vector2d, Plant> plants_copy = new LinkedHashMap<>(this.plants);
-        for (Vector2d plant_positions: plants_copy.keySet())
-        {
-            if (this.animals.containsKey(plant_positions))
-            {
-                if (this.animals.get(plant_positions).size() > 1)
-                {
+        for (Vector2d plant_positions : plants_copy.keySet()) {
+            if (this.animals.containsKey(plant_positions)) {
+                if (this.animals.get(plant_positions).size() > 1) {
                     ArrayList<Animal> animals_to_check = this.animals.get(plant_positions);
                     ArrayList<Animal> animals_that_eat = getMaxEnergyAnimals(animals_to_check);
-                    int energyIncrease = this.plantEnergy/animals_that_eat.size();
+                    int energyIncrease = this.plantEnergy / animals_that_eat.size();
                     for (Animal animal : animals_that_eat) {
                         animal.addEnergy(energyIncrease);
                     }
-                }
-                else
-                {
+                } else {
                     this.animals.get(plant_positions).get(0).addEnergy(this.plantEnergy);
                 }
                 this.plants.remove(plant_positions);
@@ -198,8 +166,7 @@ public abstract class AbstractMap implements IWorldMap, IPositionChangeObserver 
     }
 
 
-    public ArrayList<Animal> getMaxEnergyAnimals(ArrayList<Animal> animals_to_check)
-    {
+    public ArrayList<Animal> getMaxEnergyAnimals(ArrayList<Animal> animals_to_check) {
         int max_energy = 0;
         ArrayList<Animal> animals_that_eat = new ArrayList<>();
         for (Animal animal : animals_to_check) {
@@ -216,36 +183,26 @@ public abstract class AbstractMap implements IWorldMap, IPositionChangeObserver 
         return animals_that_eat;
     }
 
-    public void removeDeadAnimals()
-    {
+    public void removeDeadAnimals() {
         LinkedHashMap<Vector2d, ArrayList<Animal>> animals_copy = new LinkedHashMap<>(this.animals);
-        for (Vector2d animal_positions: animals_copy.keySet())
-        {
+        for (Vector2d animal_positions : animals_copy.keySet()) {
             ArrayList<Animal> animals_to_check = animals_copy.get(animal_positions);
-            if (animals_to_check.size() == 1)
-            {
-                if (animals_to_check.get(0).getEnergy() < this.energyLoss)
-                {
+            if (animals_to_check.size() == 1) {
+                if (animals_to_check.get(0).getEnergy() < this.energyLoss) {
                     this.animals.remove(animal_positions);
                     this.sumLifeLengthDead += animals_to_check.get(0).getLifeLength();
                     this.dead_number += 1;
-                }
-                else
-                {
+                } else {
                     animals_to_check.get(0).anotherDaySurvived();
                     this.daily_children_number += animals_to_check.get(0).getChildrenNumber();
-            }}
-            else if (animals_to_check.size() > 1)
-            {
-                for(int i = 0; i<animals_to_check.size(); i++)
-                {
-                    if (animals_to_check.get(i).getEnergy() < this.energyLoss)
-                    {
+                }
+            } else if (animals_to_check.size() > 1) {
+                for (int i = 0; i < animals_to_check.size(); i++) {
+                    if (animals_to_check.get(i).getEnergy() < this.energyLoss) {
                         this.sumLifeLengthDead += animals_to_check.get(i).getLifeLength();
                         this.dead_number += 1;
                         this.animals.get(animal_positions).remove(i);
-                    }
-                    else {
+                    } else {
                         animals_to_check.get(i).anotherDaySurvived();
                         this.daily_children_number += animals_to_check.get(i).getChildrenNumber();
                     }
@@ -256,45 +213,34 @@ public abstract class AbstractMap implements IWorldMap, IPositionChangeObserver 
     }
 
 
-    public ArrayList<Animal> find_the_pair(ArrayList<Animal> potential_animals)
-    {
+    public ArrayList<Animal> find_the_pair(ArrayList<Animal> potential_animals) {
         ArrayList<Animal> the_couple = new ArrayList<>();
-        if (getMaxEnergyAnimals(potential_animals).size() > 2)
-        {
+        if (getMaxEnergyAnimals(potential_animals).size() > 2) {
             Animal first_animal = potential_animals.get((new Random()).nextInt(potential_animals.size()));
             Animal second_animal;
             do {
                 second_animal = potential_animals.get((new Random()).nextInt(potential_animals.size()));
-            }while(second_animal == first_animal);
+            } while (second_animal == first_animal);
             the_couple.add(first_animal);
             the_couple.add(second_animal);
-        }
-        else if(getMaxEnergyAnimals(potential_animals).size() == 2)
-        {
+        } else if (getMaxEnergyAnimals(potential_animals).size() == 2) {
             the_couple = getMaxEnergyAnimals(potential_animals);
-        }
-        else
-        {
-            ArrayList<Animal>potential_animals_copy = new ArrayList<>(potential_animals);
+        } else {
+            ArrayList<Animal> potential_animals_copy = new ArrayList<>(potential_animals);
             Animal first_animal = getMaxEnergyAnimals(potential_animals).get(0);
             int animal_index_to_remove = 0;
-            for(int i = 0; i < potential_animals_copy.size(); i++)
-            {
-                if (potential_animals_copy.get(i).equals(first_animal))
-                {
+            for (int i = 0; i < potential_animals_copy.size(); i++) {
+                if (potential_animals_copy.get(i).equals(first_animal)) {
                     animal_index_to_remove = i;
                 }
             }
             potential_animals_copy.remove(animal_index_to_remove);
             ArrayList<Animal> potential_2nd_animal = getMaxEnergyAnimals(potential_animals_copy);
-            if (potential_2nd_animal.size() > 1)
-            {
+            if (potential_2nd_animal.size() > 1) {
                 Animal second_animal = potential_2nd_animal.get(new Random().nextInt(potential_2nd_animal.size()));
                 the_couple.add(first_animal);
                 the_couple.add(second_animal);
-            }
-            else if (potential_2nd_animal.size() == 1)
-            {
+            } else if (potential_2nd_animal.size() == 1) {
                 Animal second_animal = potential_2nd_animal.get(0);
                 the_couple.add(first_animal);
                 the_couple.add(second_animal);
@@ -303,26 +249,21 @@ public abstract class AbstractMap implements IWorldMap, IPositionChangeObserver 
         return the_couple;
     }
 
-    public void copulate()
-    {
-        for(Vector2d animal_positions: this.animals.keySet())
-        {
-            if(this.animals.get(animal_positions).size()>1)
-            {
+    public void copulate() {
+        for (Vector2d animal_positions : this.animals.keySet()) {
+            if (this.animals.get(animal_positions).size() > 1) {
                 ArrayList<Animal> the_couple = find_the_pair(this.animals.get(animal_positions));
-                if ((double)the_couple.get(0).getEnergy()>= (double)this.startEnergy/2 && (double)the_couple.get(1).getEnergy()>= (double)this.startEnergy/2)
-                {
+                if ((double) the_couple.get(0).getEnergy() >= (double) this.startEnergy / 2 && (double) the_couple.get(1).getEnergy() >= (double) this.startEnergy / 2) {
                     int[] new_animal_genotype = distribute_the_genes(the_couple);
                     int child_energy = 0;
-                    for(Animal parent: the_couple)
-                    {
-                        child_energy += ((0.25)*parent.getEnergy());
-                        parent.subtractEnergy((int)((0.25)*parent.getEnergy()));
+                    for (Animal parent : the_couple) {
+                        child_energy += ((0.25) * parent.getEnergy());
+                        parent.subtractEnergy((int) ((0.25) * parent.getEnergy()));
                         parent.addAChild();
                     }
                     int child_direction = new Random().nextInt(8);
                     place(new Animal(this, animal_positions, new_animal_genotype, child_energy, child_direction));
-                    addToGenotypesList(new Animal (this, animal_positions, new_animal_genotype, child_energy, child_direction));
+                    addToGenotypesList(new Animal(this, animal_positions, new_animal_genotype, child_energy, child_direction));
                     this.animals_number += 1;
                     this.daily_children_number += 1;
                 }
@@ -330,99 +271,73 @@ public abstract class AbstractMap implements IWorldMap, IPositionChangeObserver 
         }
     }
 
-    public int[] distribute_the_genes(ArrayList<Animal> couple)
-    {
+    public int[] distribute_the_genes(ArrayList<Animal> couple) {
         int the_side = new Random().nextInt(2);
         int[] child_genes = new int[32];
-        try{
-        int energyPool = couple.get(0).getEnergy() + couple.get(1).getEnergy();
-        int dominating_genes = (int)Math.ceil(32*((double)couple.get(0).getEnergy()/(double)energyPool));
-        int rest_of_genes = 32 - dominating_genes;
-        if (couple.get(0).getEnergy()>couple.get(1).getEnergy())
-        {
-            if (the_side == 0)
-            {
-                for(int i = 0; i<dominating_genes; i++)
-                {
-                    child_genes[i] = couple.get(0).getGenotype()[i];
+        try {
+            int energyPool = couple.get(0).getEnergy() + couple.get(1).getEnergy();
+            int dominating_genes = (int) Math.ceil(32 * ((double) couple.get(0).getEnergy() / (double) energyPool));
+            int rest_of_genes = 32 - dominating_genes;
+            if (couple.get(0).getEnergy() > couple.get(1).getEnergy()) {
+                if (the_side == 0) {
+                    for (int i = 0; i < dominating_genes; i++) {
+                        child_genes[i] = couple.get(0).getGenotype()[i];
+                    }
+                    for (int i = dominating_genes; i < 32; i++) {
+                        child_genes[i] = couple.get(1).getGenotype()[i];
+                    }
                 }
-                for(int i = dominating_genes; i<32; i++)
-                {
-                    child_genes[i] = couple.get(1).getGenotype()[i];
+                if (the_side == 1) {
+                    for (int i = 0; i < rest_of_genes; i++) {
+                        child_genes[i] = couple.get(1).getGenotype()[i];
+                    }
+                    for (int i = rest_of_genes; i < 32; i++) {
+                        child_genes[i] = couple.get(0).getGenotype()[i];
+                    }
                 }
-            }
-            if (the_side == 1)
-            {
-                for(int i = 0; i<rest_of_genes; i++)
-                {
-                    child_genes[i] = couple.get(1).getGenotype()[i];
-                }
-                for(int i = rest_of_genes; i<32; i++)
-                {
-                    child_genes[i] = couple.get(0).getGenotype()[i];
-                }
-            }
 
-        }
-        else if (couple.get(0).getEnergy()<couple.get(1).getEnergy())
-        {
-            if (the_side == 0)
-            {
-                for(int i = 0; i<dominating_genes; i++)
-                {
-                    child_genes[i] = couple.get(1).getGenotype()[i];
+            } else if (couple.get(0).getEnergy() < couple.get(1).getEnergy()) {
+                if (the_side == 0) {
+                    for (int i = 0; i < dominating_genes; i++) {
+                        child_genes[i] = couple.get(1).getGenotype()[i];
+                    }
+                    for (int i = dominating_genes; i < 32; i++) {
+                        child_genes[i] = couple.get(0).getGenotype()[i];
+                    }
                 }
-                for(int i = dominating_genes; i<32; i++)
-                {
-                    child_genes[i] = couple.get(0).getGenotype()[i];
+                if (the_side == 1) {
+                    for (int i = 0; i < rest_of_genes; i++) {
+                        child_genes[i] = couple.get(0).getGenotype()[i];
+                    }
+                    for (int i = rest_of_genes; i < 32; i++) {
+                        child_genes[i] = couple.get(1).getGenotype()[i];
+                    }
                 }
-            }
-            if (the_side == 1)
-            {
-                for(int i = 0; i<rest_of_genes; i++)
-                {
-                    child_genes[i] = couple.get(0).getGenotype()[i];
-                }
-                for(int i = rest_of_genes; i<32; i++)
-                {
-                    child_genes[i] = couple.get(1).getGenotype()[i];
-                }
-            }
-        }
-        else
-        {
-            int whose_first_part = new Random().nextInt(2);
-            for(int i = 0; i<16; i++)
-                {
+            } else {
+                int whose_first_part = new Random().nextInt(2);
+                for (int i = 0; i < 16; i++) {
                     child_genes[i] = couple.get(whose_first_part).getGenotype()[i];
                 }
-            for(int i = 16; i<32; i++)
-                {
-                    child_genes[i] = couple.get(Math.abs(whose_first_part-1)).getGenotype()[i];
+                for (int i = 16; i < 32; i++) {
+                    child_genes[i] = couple.get(Math.abs(whose_first_part - 1)).getGenotype()[i];
                 }
             }
-        }
-        catch(IndexOutOfBoundsException e)
-        {
+        } catch (IndexOutOfBoundsException e) {
             out.println("couple is supposed to be 2 people!");
         }
         return child_genes;
     }
 
 
-    public void moveAllAnimals()
-    {
+    public void moveAllAnimals() {
         LinkedHashMap<Vector2d, ArrayList<Animal>> animal_positions_copy = new LinkedHashMap<>(this.animals);
         ArrayList<ArrayList<Animal>> list_of_arraylist_copies = new ArrayList<>();
-        for(Vector2d animal_positions: animal_positions_copy.keySet())
-        {
+        for (Vector2d animal_positions : animal_positions_copy.keySet()) {
             ArrayList<Animal> list_to_add = new ArrayList<>(animal_positions_copy.get(animal_positions));
             list_of_arraylist_copies.add(list_to_add);
         }
-        for(ArrayList<Animal> array_list_copies: list_of_arraylist_copies)
-        {
-            for(Animal animal_to_move: array_list_copies)
-            {
+        for (ArrayList<Animal> array_list_copies : list_of_arraylist_copies) {
+            for (Animal animal_to_move : array_list_copies) {
                 animal_to_move.subtractEnergy(energyLoss);
                 animal_to_move.move();
                 this.animals_number += 1;
@@ -432,31 +347,24 @@ public abstract class AbstractMap implements IWorldMap, IPositionChangeObserver 
         }
     }
 
-    public void addToGenotypesList(Animal animal)
-    {
-        if (this.genotypes.containsKey(animal.getGenotype()))
-        {
+    public void addToGenotypesList(Animal animal) {
+        if (this.genotypes.containsKey(animal.getGenotype())) {
             addIntegers(this.genotypes.get(animal.getGenotype()), 1);
-        }
-        else
-        {
+        } else {
             this.genotypes.put(animal.getGenotype(), 1);
         }
     }
 
-    public Integer addIntegers(Integer integer, Integer value)
-    {
+    public Integer addIntegers(Integer integer, Integer value) {
         return integer + value;
     }
 
 
-    public int getAnimalsNumber()
-    {
+    public int getAnimalsNumber() {
         return this.animals_number;
     }
 
-    public void day_passing()
-    {
+    public void day_passing() {
         this.genotypes.clear();
         this.animals_number = 0;
         this.averageEnergy = 0;
@@ -468,24 +376,22 @@ public abstract class AbstractMap implements IWorldMap, IPositionChangeObserver 
         eatingPlants();
         copulate();
         seedPlants();
-        if (this.animals_number != 0){
-        this.averageChildrenNumber = (float)this.daily_children_number/this.animals_number;
-        this.averageEnergy = (float)this.sum_daily_energy/this.animals_number;}
-        if(this.dead_number != 0)
-            this.averageLifeLengthDead = (float)this.sumLifeLengthDead/this.dead_number;
+        if (this.animals_number != 0) {
+            this.averageChildrenNumber = (float) this.daily_children_number / this.animals_number;
+            this.averageEnergy = (float) this.sum_daily_energy / this.animals_number;
+        }
+        if (this.dead_number != 0)
+            this.averageLifeLengthDead = (float) this.sumLifeLengthDead / this.dead_number;
         this.daysPassed += 1;
         this.dominant_genotype = this.find_the_dominant();
     }
 
 
-    public int[] find_the_dominant()
-    {
+    public int[] find_the_dominant() {
         int[] return_value = new int[32];
         int maxvalue = 0;
-        for(int[] keys: this.genotypes.keySet())
-        {
-            if (this.genotypes.get(keys) > maxvalue)
-            {
+        for (int[] keys : this.genotypes.keySet()) {
+            if (this.genotypes.get(keys) > maxvalue) {
                 maxvalue = this.genotypes.get(keys);
                 return_value = keys;
             }
@@ -493,93 +399,88 @@ public abstract class AbstractMap implements IWorldMap, IPositionChangeObserver 
         return return_value;
     }
 
-    public int getDayCount()
-    {
+    public int getDayCount() {
         return this.daysPassed;
     }
 
-    public String getDomGen()
-    {
+    public String getDomGen() {
         return Arrays.toString(this.dominant_genotype);
     }
 
-    public int getPlants_number()
-    {
+    public int getPlants_number() {
         return this.plants_number;
     }
 
-    public float getAverageEnergy()
-    {
+    public float getAverageEnergy() {
         return this.averageEnergy;
     }
 
-    public float getAverageLifeLengthDead()
-    {
+    public float getAverageLifeLengthDead() {
         return this.averageLifeLengthDead;
     }
 
-    public float getAverageChildrenNumber()
-    {
+    public float getAverageChildrenNumber() {
         return this.averageChildrenNumber;
     }
 
 
-
-    public void positionChanged(Animal animal_to_change, Vector2d old_position, Vector2d new_position)
-    {
+    public void positionChanged(Animal animal_to_change, Vector2d old_position, Vector2d new_position) {
         LinkedHashMap<Vector2d, ArrayList<Animal>> animal_positions_copied = new LinkedHashMap<>(this.animals);
-        if (animal_positions_copied.get(old_position).size() == 1)
-        {
+        if (animal_positions_copied.get(old_position).size() == 1) {
             this.animals.remove(old_position);
-        }
-        else if (animal_positions_copied.get(old_position).size() > 1)
-        {
-            for(int i = 0; i<animal_positions_copied.get(old_position).size(); i++)
-            {
-                if (animal_positions_copied.get(old_position).get(i).equals(animal_to_change))
-                {
+        } else if (animal_positions_copied.get(old_position).size() > 1) {
+            for (int i = 0; i < animal_positions_copied.get(old_position).size(); i++) {
+                if (animal_positions_copied.get(old_position).get(i).equals(animal_to_change)) {
                     this.animals.get(old_position).remove(i);
                     break;
                 }
             }
         }
-        if (!animal_positions_copied.containsKey(new_position))
-        {
+        if (!animal_positions_copied.containsKey(new_position)) {
             ArrayList<Animal> new_position_animals = new ArrayList<>();
             new_position_animals.add(animal_to_change);
             this.animals.put(new_position, new_position_animals);
-        }
-        else
-        {
+        } else {
             this.animals.get(new_position).add(animal_to_change);
         }
     }
 
-    public String toString()
-    {
+    public String toString() {
         return this.visualizer.draw(this.lower_left, this.upper_right);
     }
 
-    public LinkedHashMap<Vector2d, ArrayList<Animal>> getAnimalsHashMap()
-    {
+    public LinkedHashMap<Vector2d, ArrayList<Animal>> getAnimalsHashMap() {
         return this.animals;
     }
 
-    public LinkedHashMap<Vector2d, Plant> getPlantsHashMap()
-    {
+    public LinkedHashMap<Vector2d, Plant> getPlantsHashMap() {
         return this.plants;
     }
 
-    public String getMapType()
-    {
-        if (this instanceof FoldableMap)
-        {
+    public String getMapType() {
+        if (this instanceof FoldableMap) {
             return "FoldableMap";
-        }
-        else
-        {
+        } else {
             return "BordersMap";
         }
+    }
+
+
+    public ArrayList<Vector2d> get_dom_animals_positions()
+    {
+        int[] get_dominant_genotype = this.dominant_genotype;
+        ArrayList<Vector2d> dom_positions = new ArrayList<>();
+        for (Vector2d animals_positions: this.animals.keySet())
+        {
+            for(Animal animals_to_check: this.animals.get(animals_positions))
+            {
+                if (animals_to_check.getGenotype().equals(get_dominant_genotype))
+                {
+                    dom_positions.add(animals_to_check.getPosition());
+                }
+            }
+        }
+        return dom_positions;
     }
 
 }
