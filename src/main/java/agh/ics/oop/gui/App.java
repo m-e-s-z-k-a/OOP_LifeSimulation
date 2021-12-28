@@ -1,5 +1,6 @@
 package agh.ics.oop.gui;
 import agh.ics.oop.*;
+import agh.ics.oop.AbstractMap;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -16,10 +17,7 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 import static java.lang.System.out;
 
@@ -45,6 +43,7 @@ public class App  extends Application implements ISimulationUpdate
     private Vector2d lower_left;
     private int columns_number;
     private int rows_number;
+    private Stage secondaryStage;
 
     public void start(Stage primaryStage)
     {
@@ -66,9 +65,11 @@ public class App  extends Application implements ISimulationUpdate
             this.fileData2.updateFileData();
             threadzik2 = new Thread(this.engine2);
             threadzik2.start();
+            Button b_get_dom_gen_animals1 = new Button("get dominant genotype animals");
             ToggleButton button_pause1 = new ToggleButton("start/pause");
             Button button_save1 = new Button("save to CSV file");
             ToggleButton button_pause2 = new ToggleButton("start/pause");
+            Button b_get_dom_gen_animals2 = new Button("get dominant genotype animals");
             Button button_save2 = new Button("save to CSV file");
             button_pause1.setOnAction(e1 ->
             {
@@ -81,6 +82,7 @@ public class App  extends Application implements ISimulationUpdate
                         ex.printStackTrace();
                     }
                 });
+                b_get_dom_gen_animals1.setOnAction( event ->{});
             });
             button_pause2.setOnAction(e2 ->
             {
@@ -93,13 +95,12 @@ public class App  extends Application implements ISimulationUpdate
                         ex.printStackTrace();
                     }
                 });
+                b_get_dom_gen_animals2.setOnAction(event -> {});
             });
-            button_pause1.setAlignment(Pos.CENTER);
-            button_pause2.setAlignment(Pos.CENTER);
-            HBox buttons_hbox1 = new HBox(button_pause1, button_save1);
+            HBox buttons_hbox1 = new HBox(button_pause1, button_save1, b_get_dom_gen_animals1);
             buttons_hbox1.setAlignment(Pos.CENTER);
             buttons_hbox1.setSpacing(5);
-            HBox buttons_hbox2 = new HBox(button_pause2, button_save2);
+            HBox buttons_hbox2 = new HBox(button_pause2, button_save2, b_get_dom_gen_animals2);
             buttons_hbox2.setAlignment(Pos.CENTER);
             buttons_hbox2.setSpacing(5);
             VBox first_map_vbox = new VBox(gridPane1, buttons_hbox1, dataChart1.get_chart_VBox(), text1.getGenDominantHBox());
@@ -108,7 +109,7 @@ public class App  extends Application implements ISimulationUpdate
             second_map_vbox.setSpacing(20);
             HBox map_hbox = new HBox(first_map_vbox, second_map_vbox);
             map_hbox.setSpacing(15);
-            Scene scene1 = new Scene(map_hbox, 400, 400);
+            Scene scene1 = new Scene(map_hbox, 1920, 1080);
             primaryStage.setScene(scene1);
             primaryStage.show();
         });
@@ -117,6 +118,7 @@ public class App  extends Application implements ISimulationUpdate
 
     public void pass_arguments(WelcomeScreen welcomeScreen)
     {
+        try{
         int width = Integer.parseInt(welcomeScreen.widthbox.textField.getText());
         int height = Integer.parseInt(welcomeScreen.heightbox.textField.getText());
         int energyLoss = Integer.parseInt(welcomeScreen.energylossbox.textField.getText());
@@ -142,10 +144,15 @@ public class App  extends Application implements ISimulationUpdate
         this.fileData2 = new FileData(this.foldablemap);
         this.engine2 = new SimulationEngine(this.foldablemap, startAnimalsNumber, isMagicGameplayOn, this.gridPane2, this.dataChart2, this.text2, this.fileData2);
         this.engine2.addObserver(this);
+        }catch(InputMismatchException e)
+        {
+            System.out.println("Wrong type of data in input!");
+        }
     }
 
     private void set_the_map(AbstractMap map, GridPane gridPane)
     {
+
         gridPane.getChildren().clear();
         gridPane.getColumnConstraints().clear();
         gridPane.getRowConstraints().clear();
@@ -186,6 +193,22 @@ public class App  extends Application implements ISimulationUpdate
            if (animals_to_show_list.size() > 0)
            {Animal animal_to_show = animals_to_show_list.get(new Random().nextInt(animals_to_show_list.size()));
            Button button = GuiElementBox.createGuiButton(animal_to_show);
+           Text genotype = new Text();
+           Button genotype_button = new Button("get genotype");
+           VBox genotype_vbox = new VBox(genotype_button, genotype);
+           genotype_vbox.setAlignment(Pos.CENTER);
+           genotype_vbox.setSpacing(10);
+           Scene new_scene = new Scene(genotype_vbox, 420, 150);
+           Stage new_stage = new Stage();
+           new_stage.setScene(new_scene);
+               genotype_button.setOnAction(e ->{
+                    genotype.setText(Arrays.toString(animal_to_show.getGenotype()));
+               }) ;
+           button.setStyle("-fx-background-color: transparent");
+           button.setOnAction(e ->
+           {
+              new_stage.show();
+           });
            gridPane.add(button, animal_key.x-lower_left.x+1, upper_right.y-animal_key.y+1);
            gridPane.setHalignment(button, HPos.CENTER);
        }}

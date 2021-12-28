@@ -13,6 +13,8 @@ import static java.lang.System.out;
 
 public class DataChart {
 
+    final NumberAxis xAxis = new NumberAxis();
+    final NumberAxis yAxis = new NumberAxis();
     final NumberAxis an_xAxis = new NumberAxis();
     final NumberAxis an_yAxis = new NumberAxis();
     final NumberAxis pn_xAxis = new NumberAxis();
@@ -25,6 +27,7 @@ public class DataChart {
     final NumberAxis all_yAxis = new NumberAxis();
     private AbstractMap map;
     private SimulationEngine engine;
+    public LineChart<Number, Number> chart = new LineChart<>(xAxis, yAxis);
     public LineChart<Number, Number> animals_number = new LineChart<>(an_xAxis, an_yAxis);
     public LineChart<Number, Number> plants_number = new LineChart<>(pn_xAxis, pn_yAxis);
     public LineChart<Number, Number> averageChildren = new LineChart<>(ac_xAxis, ac_yAxis);

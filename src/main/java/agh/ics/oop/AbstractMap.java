@@ -334,6 +334,7 @@ public abstract class AbstractMap implements IWorldMap, IPositionChangeObserver 
     {
         int the_side = new Random().nextInt(2);
         int[] child_genes = new int[32];
+        try{
         int energyPool = couple.get(0).getEnergy() + couple.get(1).getEnergy();
         int dominating_genes = (int)Math.ceil(32*((double)couple.get(0).getEnergy()/(double)energyPool));
         int rest_of_genes = 32 - dominating_genes;
@@ -400,6 +401,11 @@ public abstract class AbstractMap implements IWorldMap, IPositionChangeObserver 
                     child_genes[i] = couple.get(Math.abs(whose_first_part-1)).getGenotype()[i];
                 }
             }
+        }
+        catch(IndexOutOfBoundsException e)
+        {
+            out.println("couple is supposed to be 2 people!");
+        }
         return child_genes;
     }
 
