@@ -2,6 +2,7 @@ package agh.ics.oop.gui;
 
 import agh.ics.oop.AbstractMap;
 import agh.ics.oop.SimulationEngine;
+import javafx.geometry.Pos;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
@@ -42,18 +43,23 @@ public class DataChart {
         animals_number.getData().add(an_series);
         animals_number.setMaxHeight(1);
         animals_number.setMaxWidth(2);
+        animals_number.setTitle("number of animals per day");
         plants_number.getData().add(pn_series);
         plants_number.setMaxHeight(1);
         plants_number.setMaxWidth(2);
+        plants_number.setTitle("number of plants per day");
         averageChildren.getData().add(ac_series);
         averageChildren.setMaxHeight(1);
         averageChildren.setMaxWidth(2);
+        averageChildren.setTitle("average children number");
         averageEnergy.getData().add(ae_series);
-        averageEnergy.maxHeight(1);
-        averageEnergy.maxWidth(2);
+        averageEnergy.setMaxHeight(1);
+        averageEnergy.setMaxWidth(2);
+        averageEnergy.setTitle("average animal energy");
         averageLifeLength.getData().add(all_series);
-        averageLifeLength.maxHeight(1);
-        averageLifeLength.maxWidth(2);
+        averageLifeLength.setMaxHeight(1);
+        averageLifeLength.setMaxWidth(2);
+        averageLifeLength.setTitle("avg life length for dead");
     }
 
     public void updateCharts()
@@ -65,14 +71,16 @@ public class DataChart {
         all_series.getData().add(new XYChart.Data<>(this.map.getDayCount(), this.map.getAverageLifeLengthDead()));
     }
 
-    public HBox get_chart_HBox()
+    public VBox get_chart_VBox()
     {
-        VBox vbox1 = new VBox(this.animals_number, this.plants_number);
-        vbox1.setSpacing(10);
-        VBox vbox2 = new VBox(this.averageEnergy, this.averageChildren, this.averageLifeLength);
-        vbox2.setSpacing(10);
-        HBox hbox = new HBox(vbox1, vbox2);
-        hbox.setSpacing(10);
-        return hbox;
+        HBox hbox1 = new HBox(this.animals_number, this.plants_number);
+        hbox1.setSpacing(10);
+        hbox1.setAlignment(Pos.CENTER);
+        HBox hbox2 = new HBox(this.averageEnergy, this.averageChildren, this.averageLifeLength);
+        hbox2.setSpacing(10);
+        hbox2.setAlignment(Pos.CENTER);
+        VBox vbox = new VBox(hbox1, hbox2);
+        vbox.setSpacing(10);
+        return vbox;
     }
 }

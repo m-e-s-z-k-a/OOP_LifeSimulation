@@ -1,6 +1,7 @@
 package agh.ics.oop;
 
 import agh.ics.oop.gui.DataChart;
+import agh.ics.oop.gui.GenotypeText;
 import javafx.scene.layout.GridPane;
 
 import java.util.Arrays;
@@ -18,11 +19,13 @@ public class SimulationEngine implements IEngine, Runnable
     private boolean pause = false;
     private Object lock = this;
     private DataChart dataChart;
+    private GenotypeText text;
     private int animals_to_start_with;
     private LinkedList<ISimulationUpdate> observers;
-    public SimulationEngine(AbstractMap map, int start_animals_number, GridPane gridPane, DataChart dataChart)
+    public SimulationEngine(AbstractMap map, int start_animals_number, GridPane gridPane, DataChart dataChart, GenotypeText text)
     {
         this.map = map;
+        this.text = text;
         this.animals_to_start_with = start_animals_number;
         this.running = true;
         this.pause = false;
@@ -52,7 +55,7 @@ public class SimulationEngine implements IEngine, Runnable
     {
         for (ISimulationUpdate observer: this.observers)
         {
-            observer.mapUpdate(this.map, this.gridPane, this, this.dataChart);
+            observer.mapUpdate(this.map, this.gridPane, this, this.dataChart, text);
         }
     }
 

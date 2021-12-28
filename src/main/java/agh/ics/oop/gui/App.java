@@ -12,6 +12,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.layout.*;
 import javafx.scene.control.Label;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 import java.util.ArrayList;
@@ -27,6 +28,8 @@ public class App  extends Application implements ISimulationUpdate
     private AbstractMap foldablemap;
     private DataChart dataChart1;
     private DataChart dataChart2;
+    private GenotypeText text1;
+    private GenotypeText text2;
     private LinkedHashMap<Vector2d, ArrayList<Animal>> animals;
     private LinkedHashMap<Vector2d, Plant> plants;
     private GridPane gridPane1;
@@ -51,8 +54,11 @@ public class App  extends Application implements ISimulationUpdate
             set_the_map(this.bordersmap, gridPane1);
             set_the_map(this.foldablemap, gridPane2);
             this.dataChart1.updateCharts();
+            this.text1.updateGenDominant();
             threadzik = new Thread(this.engine1);
             threadzik.start();
+            this.dataChart2.updateCharts();
+            this.text2.updateGenDominant();
             threadzik2 = new Thread(this.engine2);
             threadzik2.start();
             ToggleButton button_pause1 = new ToggleButton("start/pause");
@@ -65,8 +71,10 @@ public class App  extends Application implements ISimulationUpdate
             {
                 this.engine2.pauseandrun();
             });
-            VBox first_map_vbox = new VBox(gridPane1, button_pause1, dataChart1.get_chart_HBox());
-            VBox second_map_vbox = new VBox(gridPane2, button_pause2, dataChart2.get_chart_HBox());
+            button_pause1.setAlignment(Pos.CENTER);
+            button_pause2.setAlignment(Pos.CENTER);
+            VBox first_map_vbox = new VBox(gridPane1, button_pause1, dataChart1.get_chart_VBox(), text1.getGenDominant());
+            VBox second_map_vbox = new VBox(gridPane2, button_pause2, dataChart2.get_chart_VBox(), text2.getGenDominant());
             first_map_vbox.setSpacing(20);
             second_map_vbox.setSpacing(20);
             HBox map_hbox = new HBox(first_map_vbox, second_map_vbox);
@@ -90,13 +98,17 @@ public class App  extends Application implements ISimulationUpdate
         Vector2d[] positions = { new Vector2d(2,2), new Vector2d(3,4),  new Vector2d(3,4)};
         this.bordersmap = new BordersMap(width, height, jungleRatio, plantEnergy, energyLoss, startEnergy);
         this.gridPane1 = new GridPane();
+        this.gridPane1.setAlignment(Pos.CENTER);
         this.dataChart1 = new DataChart(this.bordersmap);
-        this.engine1 = new SimulationEngine(this.bordersmap, startAnimalsNumber, this.gridPane1, this.dataChart1);
+        this.text1 = new GenotypeText(this.bordersmap);
+        this.engine1 = new SimulationEngine(this.bordersmap, startAnimalsNumber, this.gridPane1, this.dataChart1, this.text1);
         this.engine1.addObserver(this);
         this.foldablemap = new FoldableMap(width, height, jungleRatio, plantEnergy, energyLoss, startEnergy);
         this.gridPane2 = new GridPane();
+        this.gridPane2.setAlignment(Pos.CENTER);
         this.dataChart2 = new DataChart(this.foldablemap);
-        this.engine2 = new SimulationEngine(this.foldablemap, startAnimalsNumber, this.gridPane2, this.dataChart2);
+        this.text2 = new GenotypeText(this.foldablemap);
+        this.engine2 = new SimulationEngine(this.foldablemap, startAnimalsNumber, this.gridPane2, this.dataChart2, this.text2);
         this.engine2.addObserver(this);
     }
 
@@ -155,11 +167,12 @@ public class App  extends Application implements ISimulationUpdate
         }
     }
 
-    public void mapUpdate(AbstractMap map, GridPane gridPane, SimulationEngine engine, DataChart dataChart)
+    public void mapUpdate(AbstractMap map, GridPane gridPane, SimulationEngine engine, DataChart dataChart, GenotypeText text)
     {
         Platform.runLater(()->{
             gridPane.setGridLinesVisible(false);
             set_the_map(map, gridPane);
+            text.updateGenDominant();
             dataChart.updateCharts();
         });
     }

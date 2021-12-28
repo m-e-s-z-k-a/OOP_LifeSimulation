@@ -1,8 +1,8 @@
 package agh.ics.oop;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.Random;
+import java.util.*;
+
+import static java.lang.System.out;
 
 
 public abstract class AbstractMap implements IWorldMap, IPositionChangeObserver {
@@ -28,6 +28,8 @@ public abstract class AbstractMap implements IWorldMap, IPositionChangeObserver 
     protected float averageLifeLengthDead;
     protected int sum_daily_energy;
     protected int daysPassed;
+    int[] dominant_genotype = new int[32];
+    protected LinkedHashMap<int[], Integer> genotypes = new LinkedHashMap<>();
     protected LinkedHashMap<Vector2d, ArrayList<Animal>> animals = new LinkedHashMap<>();
     protected LinkedHashMap<Vector2d, Plant> plants = new LinkedHashMap<>();
 
@@ -320,6 +322,7 @@ public abstract class AbstractMap implements IWorldMap, IPositionChangeObserver 
                     }
                     int child_direction = new Random().nextInt(8);
                     place(new Animal(this, animal_positions, new_animal_genotype, child_energy, child_direction));
+                    addToGenotypesList(new Animal (this, animal_positions, new_animal_genotype, child_energy, child_direction));
                     this.animals_number += 1;
                     this.daily_children_number += 1;
                 }
@@ -418,9 +421,28 @@ public abstract class AbstractMap implements IWorldMap, IPositionChangeObserver 
                 animal_to_move.move();
                 this.animals_number += 1;
                 this.sum_daily_energy += animal_to_move.getEnergy();
+                this.addToGenotypesList(animal_to_move);
             }
         }
     }
+
+    public void addToGenotypesList(Animal animal)
+    {
+        if (this.genotypes.containsKey(animal.getGenotype()))
+        {
+            addIntegers(this.genotypes.get(animal.getGenotype()), 1);
+        }
+        else
+        {
+            this.genotypes.put(animal.getGenotype(), 1);
+        }
+    }
+
+    public Integer addIntegers(Integer integer, Integer value)
+    {
+        return integer + value;
+    }
+
 
     public int getAnimalsNumber()
     {
@@ -429,6 +451,7 @@ public abstract class AbstractMap implements IWorldMap, IPositionChangeObserver 
 
     public void day_passing()
     {
+        this.genotypes.clear();
         this.animals_number = 0;
         this.averageEnergy = 0;
         this.sum_daily_energy = 0;
@@ -441,13 +464,42 @@ public abstract class AbstractMap implements IWorldMap, IPositionChangeObserver 
         seedPlants();
         this.averageChildrenNumber = (float)this.daily_children_number/this.animals_number;
         this.averageEnergy = (float)this.sum_daily_energy/this.animals_number;
-        this.averageLifeLengthDead = (float)this.sumLifeLengthDead/this.dead_number;
+        if(this.dead_number != 0)
+            this.averageLifeLengthDead = (float)this.sumLifeLengthDead/this.dead_number;
         this.daysPassed += 1;
+        //this.dominant_genotype = Collections.max(this.genotypes.entrySet(), Map.Entry.comparingByValue()).getKey();
+   //     out.println(Arrays.toString(this.dominant_genotype));
+        this.dominant_genotype = this.find_the_dominant();
+    }
+
+    public int[] swap_dominant_genotype(int[] old_genotype, int[] new_genotype)
+    {
+        return new_genotype;
+    }
+
+    public int[] find_the_dominant()
+    {
+        int[] return_value = new int[32];
+        int maxvalue = 0;
+        for(int[] keys: this.genotypes.keySet())
+        {
+            if (this.genotypes.get(keys) > maxvalue)
+            {
+                maxvalue = this.genotypes.get(keys);
+                return_value = keys;
+            }
+        }
+        return return_value;
     }
 
     public int getDayCount()
     {
         return this.daysPassed;
+    }
+
+    public String getDomGen()
+    {
+        return Arrays.toString(this.dominant_genotype);
     }
 
     public int getPlants_number()
