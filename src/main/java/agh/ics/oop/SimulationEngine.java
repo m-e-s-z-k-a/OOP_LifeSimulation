@@ -156,7 +156,6 @@ public class SimulationEngine implements IEngine, Runnable
             {
                 int animals_placed = 0;
                 timesMagicUsed += 1;
-                out.println("wow");
                 Platform.runLater(() -> {
                     Text popup_text = new Text(this.map.getMapType() + " Magic! " + (3-timesMagicUsed) + " time(s) left");
                     VBox vbox = new VBox(popup_text);
