@@ -44,22 +44,32 @@ public class DataChart {
     {
         this.map = map;
         animals_number.getData().add(an_series);
+        an_xAxis.setForceZeroInRange(false);
+        an_yAxis.setForceZeroInRange(false);
         animals_number.setMaxHeight(1);
         animals_number.setMaxWidth(2);
         animals_number.setTitle("animals per day");
         plants_number.getData().add(pn_series);
+        pn_xAxis.setForceZeroInRange(false);
+        pn_yAxis.setForceZeroInRange(false);
         plants_number.setMaxHeight(1);
         plants_number.setMaxWidth(2);
         plants_number.setTitle("plants per day");
         averageChildren.getData().add(ac_series);
+        ac_xAxis.setForceZeroInRange(false);
+        ac_yAxis.setForceZeroInRange(false);
         averageChildren.setMaxHeight(1);
         averageChildren.setMaxWidth(2);
         averageChildren.setTitle("avg children number");
         averageEnergy.getData().add(ae_series);
+        ae_xAxis.setForceZeroInRange(false);
+        ae_yAxis.setForceZeroInRange(false);
         averageEnergy.setMaxHeight(1);
         averageEnergy.setMaxWidth(2);
         averageEnergy.setTitle("avg animal energy");
         averageLifeLength.getData().add(all_series);
+        all_xAxis.setForceZeroInRange(false);
+        all_yAxis.setForceZeroInRange(false);
         averageLifeLength.setMaxHeight(1);
         averageLifeLength.setMaxWidth(2);
         averageLifeLength.setTitle("avg life length for dead");
@@ -68,10 +78,15 @@ public class DataChart {
     public void updateCharts()
     {
         an_series.getData().add(new XYChart.Data<>(this.map.getDayCount(), this.map.getAnimalsNumber()));
+        an_series.getData().remove(0, an_series.getData().size()-20);
         pn_series.getData().add(new XYChart.Data<>(this.map.getDayCount(), this.map.getPlants_number()));
+        pn_series.getData().remove(0, pn_series.getData().size()-20);
         ae_series.getData().add(new XYChart.Data<>(this.map.getDayCount(), this.map.getAverageEnergy()));
+        ae_series.getData().remove(0, ae_series.getData().size()-20);
         ac_series.getData().add(new XYChart.Data<>(this.map.getDayCount(), this.map.getAverageChildrenNumber()));
+        ac_series.getData().remove(0, ac_series.getData().size()-20);
         all_series.getData().add(new XYChart.Data<>(this.map.getDayCount(), this.map.getAverageLifeLengthDead()));
+        all_series.getData().remove(0, all_series.getData().size()-20);
     }
 
     public VBox get_chart_VBox()

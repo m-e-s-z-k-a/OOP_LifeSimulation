@@ -3,7 +3,13 @@ package agh.ics.oop;
 import agh.ics.oop.gui.DataChart;
 import agh.ics.oop.gui.FileData;
 import agh.ics.oop.gui.GenotypeText;
+import javafx.application.Platform;
+import javafx.geometry.Pos;
+import javafx.scene.Scene;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
+import javafx.stage.Stage;
 
 import java.util.*;
 
@@ -143,7 +149,17 @@ public class SimulationEngine implements IEngine, Runnable
             if(this.map.animals_number == 5 && this.isMagicGameplayOn && timesMagicUsed < 3)
             {
                 int animals_placed = 0;
-                timesMagicUsed -= 1;
+                timesMagicUsed += 1;
+                out.println("wow");
+                Platform.runLater(() -> {
+                    Text popup_text = new Text(this.map.getMapType() + " Magic! " + (3-timesMagicUsed) + " time(s) left");
+                    VBox vbox = new VBox(popup_text);
+                    vbox.setAlignment(Pos.CENTER);
+                    Scene newScene = new Scene(vbox, 300, 300);
+                    Stage stage = new Stage();
+                    stage.setScene(newScene);
+                    stage.show();
+                });
                 do {
                     int x_coord = new Random().nextInt(this.map.width);
                     int y_coord = new Random().nextInt(this.map.height);
