@@ -6,6 +6,8 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.Image;
+import javafx.scene.layout.VBox;
+
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 
@@ -35,13 +37,13 @@ public class GuiElementBox
             imageView = new ImageView(image_animal_orange);
         else
             imageView = new ImageView(image_animal_red);
-        imageView.setFitWidth(50);
-        imageView.setFitHeight(50);
+        imageView.setFitWidth(20);
+        imageView.setFitHeight(20);
         Button button = new Button("", imageView);
         button.setAlignment(Pos.CENTER);
         return button;
     }
-    public static Button createGuiButton(Plant plant)
+    public static VBox createGuiElement(Plant plant)
     {
         ImageView imageView;
         if (plant.isInJungle())
@@ -54,8 +56,10 @@ public class GuiElementBox
         }
         imageView.setFitWidth(20);
         imageView.setFitHeight(20);
-        Button button = new Button("", imageView);
-        button.setAlignment(Pos.CENTER);
-        return button;
+        VBox vbox = new VBox(imageView);
+        vbox.setMaxHeight(20);
+        vbox.setMaxWidth(20);
+        vbox.setAlignment(Pos.CENTER);
+        return vbox;
     }
 }

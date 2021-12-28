@@ -17,7 +17,17 @@ public abstract class AbstractMap implements IWorldMap, IPositionChangeObserver 
     protected int plantEnergy;
     protected MapVisualizer visualizer;
     protected int energyLoss;
+    protected int animals_number;
+    protected int plants_number;
+    protected float sumLifeLengthDead;
+    protected int dead_number;
+    protected int daily_children_number;
+    protected float averageChildrenNumber;
+    protected float averageEnergy;
     protected int startEnergy;
+    protected float averageLifeLengthDead;
+    protected int sum_daily_energy;
+    protected int daysPassed;
     protected LinkedHashMap<Vector2d, ArrayList<Animal>> animals = new LinkedHashMap<>();
     protected LinkedHashMap<Vector2d, Plant> plants = new LinkedHashMap<>();
 
@@ -29,6 +39,16 @@ public abstract class AbstractMap implements IWorldMap, IPositionChangeObserver 
         this.height = height;
         this.plantEnergy = plantEnergy;
         this.startEnergy = startEnergy;
+        this.daysPassed = 0;
+        this.plants_number = 0;
+        this.sum_daily_energy = 0;
+        this.dead_number = 0;
+        this.sumLifeLengthDead = 0;
+        this.averageLifeLengthDead = 0;
+        this.animals_number = 0;
+        this.daily_children_number = 0;
+        this.averageChildrenNumber = 0;
+        this.averageEnergy = 0;
         this.visualizer = new MapVisualizer(this);
         this.setCoordinates();
     }
@@ -112,10 +132,12 @@ public abstract class AbstractMap implements IWorldMap, IPositionChangeObserver 
                     if (isInJungle(location))
                     {
                         jungle_free_spots.add(location);
+
                     }
                     else
                     {
                         plain_free_spots.add(location);
+
                     }
                 }
             }
@@ -128,6 +150,7 @@ public abstract class AbstractMap implements IWorldMap, IPositionChangeObserver 
                 new_plain_plant = plain_free_spots.get((new Random()).nextInt(plain_free_spots.size()));
             }while (this.objectAt(new_plain_plant) != null);
             this.plants.put(new_plain_plant, new Plant(this, new_plain_plant, this.plantEnergy));
+            this.plants_number += 1;
         }
         if (jungle_free_spots.size() > 0)
         {
@@ -137,6 +160,7 @@ public abstract class AbstractMap implements IWorldMap, IPositionChangeObserver 
                 new_jungle_plant = jungle_free_spots.get((new Random()).nextInt(jungle_free_spots.size()));
             }while (this.objectAt(new_jungle_plant) != null);
             this.plants.put(new_jungle_plant, new Plant(this, new_jungle_plant, this.plantEnergy));
+            this.plants_number += 1;
         }
     }
 
@@ -166,6 +190,7 @@ public abstract class AbstractMap implements IWorldMap, IPositionChangeObserver 
                     this.animals.get(plant_positions).get(0).addEnergy(this.plantEnergy);
                 }
                 this.plants.remove(plant_positions);
+                this.plants_number -= 1;
             }
         }
     }
@@ -200,14 +225,27 @@ public abstract class AbstractMap implements IWorldMap, IPositionChangeObserver 
                 if (animals_to_check.get(0).getEnergy() < this.energyLoss)
                 {
                     this.animals.remove(animal_positions);
-                } }
+                    this.sumLifeLengthDead += animals_to_check.get(0).getLifeLength();
+                    this.dead_number += 1;
+                }
+                else
+                {
+                    animals_to_check.get(0).anotherDaySurvived();
+                    this.daily_children_number += animals_to_check.get(0).getChildrenNumber();
+            }}
             else if (animals_to_check.size() > 1)
             {
                 for(int i = 0; i<animals_to_check.size(); i++)
                 {
                     if (animals_to_check.get(i).getEnergy() < this.energyLoss)
                     {
+                        this.sumLifeLengthDead += animals_to_check.get(i).getLifeLength();
+                        this.dead_number += 1;
                         this.animals.get(animal_positions).remove(i);
+                    }
+                    else {
+                        animals_to_check.get(i).anotherDaySurvived();
+                        this.daily_children_number += animals_to_check.get(i).getChildrenNumber();
                     }
                 }
             }
@@ -278,9 +316,12 @@ public abstract class AbstractMap implements IWorldMap, IPositionChangeObserver 
                     {
                         child_energy += ((0.25)*parent.getEnergy());
                         parent.subtractEnergy((int)((0.25)*parent.getEnergy()));
+                        parent.addAChild();
                     }
                     int child_direction = new Random().nextInt(8);
                     place(new Animal(this, animal_positions, new_animal_genotype, child_energy, child_direction));
+                    this.animals_number += 1;
+                    this.daily_children_number += 1;
                 }
             }
         }
@@ -375,19 +416,61 @@ public abstract class AbstractMap implements IWorldMap, IPositionChangeObserver 
             {
                 animal_to_move.subtractEnergy(energyLoss);
                 animal_to_move.move();
+                this.animals_number += 1;
+                this.sum_daily_energy += animal_to_move.getEnergy();
             }
         }
     }
 
+    public int getAnimalsNumber()
+    {
+        return this.animals_number;
+    }
+
     public void day_passing()
     {
-
+        this.animals_number = 0;
+        this.averageEnergy = 0;
+        this.sum_daily_energy = 0;
+        this.daily_children_number = 0;
+        this.averageChildrenNumber = 0;
         removeDeadAnimals();
         moveAllAnimals();
         eatingPlants();
         copulate();
         seedPlants();
+        this.averageChildrenNumber = (float)this.daily_children_number/this.animals_number;
+        this.averageEnergy = (float)this.sum_daily_energy/this.animals_number;
+        this.averageLifeLengthDead = (float)this.sumLifeLengthDead/this.dead_number;
+        this.daysPassed += 1;
     }
+
+    public int getDayCount()
+    {
+        return this.daysPassed;
+    }
+
+    public int getPlants_number()
+    {
+        return this.plants_number;
+    }
+
+    public float getAverageEnergy()
+    {
+        return this.averageEnergy;
+    }
+
+    public float getAverageLifeLengthDead()
+    {
+        return this.averageLifeLengthDead;
+    }
+
+    public float getAverageChildrenNumber()
+    {
+        return this.averageChildrenNumber;
+    }
+
+
 
     public void positionChanged(Animal animal_to_change, Vector2d old_position, Vector2d new_position)
     {

@@ -14,6 +14,8 @@ public class Animal {
     private int direction;
     private AbstractMap map;
     private int energyLoss;
+    private int lifeLength;
+    private int childrenNumber;
     private ArrayList<IPositionChangeObserver> maplist;
 
     public Animal(AbstractMap map, Vector2d position, int[] genotype, int energy, int direction)
@@ -25,6 +27,8 @@ public class Animal {
         this.position = position;
         this.direction = direction;
         this.maplist = new ArrayList<>();
+        this.lifeLength = 0;
+        this.childrenNumber = 0;
     }
 
     public boolean equals(Object other){
@@ -105,6 +109,11 @@ public class Animal {
         return position;
     }
 
+    public int getChildrenNumber()
+    {
+        return this.childrenNumber;
+    }
+
     public String toString()
     {
         return(String.valueOf(this.direction));
@@ -146,7 +155,6 @@ public class Animal {
             }
             if (this.map instanceof FoldableMap && outOfBounds(new_position))
             {
-                out.print("XD");
                 new_position = modifyOutOfBoundsPosition(new_position);
             }
             if (this.map.canMoveTo(new_position))
@@ -199,6 +207,21 @@ public class Animal {
                 observers.positionChanged(this, old_position, new_position);
             }
 
+    }
+
+    public void addAChild()
+    {
+        this.childrenNumber += 1;
+    }
+
+    public void anotherDaySurvived()
+    {
+        this.lifeLength += 1;
+    }
+
+    public int getLifeLength()
+    {
+        return this.lifeLength;
     }
 
     public int getMapStartEnergy()

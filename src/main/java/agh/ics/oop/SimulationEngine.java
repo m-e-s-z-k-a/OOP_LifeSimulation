@@ -1,5 +1,6 @@
 package agh.ics.oop;
 
+import agh.ics.oop.gui.DataChart;
 import javafx.scene.layout.GridPane;
 
 import java.util.Arrays;
@@ -11,13 +12,21 @@ import static java.lang.System.out;
 public class SimulationEngine implements IEngine, Runnable
 {
     private AbstractMap map;
+    private int daysPassed;
     private GridPane gridPane;
+    private boolean running = true;
     private boolean pause = false;
     private Object lock = this;
+    private DataChart dataChart;
+    private int animals_to_start_with;
     private LinkedList<ISimulationUpdate> observers;
-    public SimulationEngine(AbstractMap map, int start_animals_number, GridPane gridPane)
+    public SimulationEngine(AbstractMap map, int start_animals_number, GridPane gridPane, DataChart dataChart)
     {
         this.map = map;
+        this.animals_to_start_with = start_animals_number;
+        this.running = true;
+        this.pause = false;
+        this.dataChart = dataChart;
         this.gridPane = gridPane;
         this.observers = new LinkedList<>();
         do
@@ -43,28 +52,86 @@ public class SimulationEngine implements IEngine, Runnable
     {
         for (ISimulationUpdate observer: this.observers)
         {
-            observer.mapUpdate(this.map, this.gridPane);
+            observer.mapUpdate(this.map, this.gridPane, this, this.dataChart);
         }
     }
+
 
     public void addObserver(ISimulationUpdate new_observer)
     {
         this.observers.add(new_observer);
     }
 
-
-    public synchronized void pauseThread() throws InterruptedException {
-        while(!pause)
-        {
-            wait();
-        }
-        pause = false;
-        notifyAll();
+    public void pause()
+    {
+        pause = true;
     }
 
+    public void toggle()
+    {
+        if(!this.pause)
+        {
+            this.pause = true;
+        }
+        else
+        {
+            synchronized (this.lock)
+            {
+                this.pause = false;
+                this.lock.notifyAll();
+            }
+        }
+    }
+
+
+    public void resume()
+    {
+        synchronized(lock)
+        {
+            this.pause = false;
+            this.lock.notifyAll();
+        }
+    }
+
+    public int getDayCount()
+    {
+        return this.daysPassed;
+    }
+
+
+    public void pauseandrun()
+    {
+        if(pause)
+        {
+            this.resume();
+        }
+        else {
+            this.pause();
+        }
+    }
     public void run()
     {
         do {
+            synchronized(lock)
+            {
+                if (!running)
+                {
+                    break;
+                }
+                if (pause)
+                { try{
+                    synchronized(lock){
+                        lock.wait();
+                    }}catch (InterruptedException ex)
+                {
+                    break;
+                }
+                    if (!running)
+                    {
+                        break;
+                    }
+                }
+            }
             try
             {
                 Thread.sleep(500);
@@ -73,7 +140,7 @@ public class SimulationEngine implements IEngine, Runnable
                 e.printStackTrace();
             }
             this.map.day_passing();
-            out.println(map);
+            daysPassed += 1;
             this.mapUpdate();
         }while (!(this.map.animals.isEmpty()));
         return;

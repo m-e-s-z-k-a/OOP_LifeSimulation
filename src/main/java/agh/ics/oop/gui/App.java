@@ -25,6 +25,8 @@ public class App  extends Application implements ISimulationUpdate
 {
     private AbstractMap bordersmap;
     private AbstractMap foldablemap;
+    private DataChart dataChart1;
+    private DataChart dataChart2;
     private LinkedHashMap<Vector2d, ArrayList<Animal>> animals;
     private LinkedHashMap<Vector2d, Plant> plants;
     private GridPane gridPane1;
@@ -38,18 +40,6 @@ public class App  extends Application implements ISimulationUpdate
     private int columns_number;
     private int rows_number;
 
-//
-//    public void start(Stage primaryStage)
-//    {
-//        this.gridPane = new GridPane();
-//        this.set_the_map(gridPane);
-//        threadzik = new Thread(this.engine);
-//        threadzik.start();
-//        Scene scene = new Scene(gridPane, 400, 400);
-//        primaryStage.setScene(scene);
-//        primaryStage.show();
-//    }
-
     public void start(Stage primaryStage)
     {
         WelcomeScreen welcomeScreen = new WelcomeScreen();
@@ -60,6 +50,7 @@ public class App  extends Application implements ISimulationUpdate
             pass_arguments(welcomeScreen);
             set_the_map(this.bordersmap, gridPane1);
             set_the_map(this.foldablemap, gridPane2);
+            this.dataChart1.updateCharts();
             threadzik = new Thread(this.engine1);
             threadzik.start();
             threadzik2 = new Thread(this.engine2);
@@ -68,22 +59,14 @@ public class App  extends Application implements ISimulationUpdate
             ToggleButton button_pause2 = new ToggleButton("start/pause");
             button_pause1.setOnAction(e1 ->
             {
-                try {
-                    this.engine1.pauseThread();
-                } catch (InterruptedException ex) {
-                    ex.printStackTrace();
-                }
+                this.engine1.pauseandrun();
             });
             button_pause2.setOnAction(e2 ->
             {
-                try{
-                    this.engine2.pauseThread();
-                }catch (InterruptedException ex) {
-                    ex.printStackTrace();
-                }
+                this.engine2.pauseandrun();
             });
-            VBox first_map_vbox = new VBox(gridPane1, button_pause1);
-            VBox second_map_vbox = new VBox(gridPane2, button_pause2);
+            VBox first_map_vbox = new VBox(gridPane1, button_pause1, dataChart1.get_chart_HBox());
+            VBox second_map_vbox = new VBox(gridPane2, button_pause2, dataChart2.get_chart_HBox());
             first_map_vbox.setSpacing(20);
             second_map_vbox.setSpacing(20);
             HBox map_hbox = new HBox(first_map_vbox, second_map_vbox);
@@ -107,14 +90,14 @@ public class App  extends Application implements ISimulationUpdate
         Vector2d[] positions = { new Vector2d(2,2), new Vector2d(3,4),  new Vector2d(3,4)};
         this.bordersmap = new BordersMap(width, height, jungleRatio, plantEnergy, energyLoss, startEnergy);
         this.gridPane1 = new GridPane();
-        this.engine1 = new SimulationEngine(this.bordersmap, startAnimalsNumber, this.gridPane1);
+        this.dataChart1 = new DataChart(this.bordersmap);
+        this.engine1 = new SimulationEngine(this.bordersmap, startAnimalsNumber, this.gridPane1, this.dataChart1);
         this.engine1.addObserver(this);
         this.foldablemap = new FoldableMap(width, height, jungleRatio, plantEnergy, energyLoss, startEnergy);
         this.gridPane2 = new GridPane();
-        this.engine2 = new SimulationEngine(this.foldablemap, startAnimalsNumber, this.gridPane2);
+        this.dataChart2 = new DataChart(this.foldablemap);
+        this.engine2 = new SimulationEngine(this.foldablemap, startAnimalsNumber, this.gridPane2, this.dataChart2);
         this.engine2.addObserver(this);
-
-
     }
 
     private void set_the_map(AbstractMap map, GridPane gridPane)
@@ -134,11 +117,11 @@ public class App  extends Application implements ISimulationUpdate
         gridPane.setHalignment(axis, HPos.CENTER);
         for(int i = 0; i<=rows_number; i++)
         {
-            gridPane.getColumnConstraints().add(new ColumnConstraints(50));
+            gridPane.getColumnConstraints().add(new ColumnConstraints(20));
         }
         for (int i = 0; i<=columns_number; i++)
         {
-            gridPane.getRowConstraints().add(new RowConstraints(50));
+            gridPane.getRowConstraints().add(new RowConstraints(20));
         }
         for (int i = 0; i<rows_number; i++)
         {
@@ -156,48 +139,30 @@ public class App  extends Application implements ISimulationUpdate
        {
            ArrayList<Animal> animals_to_show_list = new ArrayList<>();
            animals_to_show_list = map.getMaxEnergyAnimals(animals_copy.get(animal_key));
-           Animal animal_to_show = animals_to_show_list.get(new Random().nextInt(animals_to_show_list.size()));
+           if (animals_to_show_list.size() > 0)
+           {Animal animal_to_show = animals_to_show_list.get(new Random().nextInt(animals_to_show_list.size()));
            Button button = GuiElementBox.createGuiButton(animal_to_show);
            gridPane.add(button, animal_key.x-lower_left.x+1, upper_right.y-animal_key.y+1);
            gridPane.setHalignment(button, HPos.CENTER);
-       }
+       }}
        for(Vector2d plants_key: plants_copy.keySet())
         {
             if (map.objectAt(plants_key) instanceof Plant) {
-                Button button = GuiElementBox.createGuiButton(plants_copy.get(plants_key));
-                gridPane.add(button, plants_key.x - lower_left.x + 1, upper_right.y - plants_key.y + 1);
-                gridPane.setHalignment(button, HPos.CENTER);
+                VBox vbox = GuiElementBox.createGuiElement(plants_copy.get(plants_key));
+                gridPane.add(vbox, plants_key.x - lower_left.x + 1, upper_right.y - plants_key.y + 1);
+                gridPane.setHalignment(vbox, HPos.CENTER);
             }
         }
     }
 
-    public void mapUpdate(AbstractMap map, GridPane gridPane)
+    public void mapUpdate(AbstractMap map, GridPane gridPane, SimulationEngine engine, DataChart dataChart)
     {
         Platform.runLater(()->{
             gridPane.setGridLinesVisible(false);
             set_the_map(map, gridPane);
+            dataChart.updateCharts();
         });
     }
-//
-//    public void init() throws Exception
-//    {
-//        super.init();
-//        try{
-//            System.out.println("Start");
-//            this.map = new BordersMap(15, 10, 0.5, 10, 1, 20);
-//            Vector2d[] positions = { new Vector2d(2,2), new Vector2d(3,4),  new Vector2d(3,4)};
-//            this.animals = this.map.getAnimalsHashMap();
-//            this.plants = this.map.getPlantsHashMap();
-//            this.engine = new SimulationEngine(this.map, positions);
-//            this.upper_right = this.map.get_upper_right();
-//            this.lower_left = this.map.get_lower_left();
-//            this.columns_number = (this.upper_right.y - this.lower_left.y)+1;
-//            this.rows_number = (this.upper_right.x - this.lower_left.x)+1;
-//            this.engine.addObserver(this);
-//        }catch(IllegalArgumentException e)
-//        {out.print(e);}
-
-  //  }
 
 }
 
