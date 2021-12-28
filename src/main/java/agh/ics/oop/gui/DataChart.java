@@ -43,19 +43,19 @@ public class DataChart {
         animals_number.getData().add(an_series);
         animals_number.setMaxHeight(1);
         animals_number.setMaxWidth(2);
-        animals_number.setTitle("number of animals per day");
+        animals_number.setTitle("animals per day");
         plants_number.getData().add(pn_series);
         plants_number.setMaxHeight(1);
         plants_number.setMaxWidth(2);
-        plants_number.setTitle("number of plants per day");
+        plants_number.setTitle("plants per day");
         averageChildren.getData().add(ac_series);
         averageChildren.setMaxHeight(1);
         averageChildren.setMaxWidth(2);
-        averageChildren.setTitle("average children number");
+        averageChildren.setTitle("avg children number");
         averageEnergy.getData().add(ae_series);
         averageEnergy.setMaxHeight(1);
         averageEnergy.setMaxWidth(2);
-        averageEnergy.setTitle("average animal energy");
+        averageEnergy.setTitle("avg animal energy");
         averageLifeLength.getData().add(all_series);
         averageLifeLength.setMaxHeight(1);
         averageLifeLength.setMaxWidth(2);
@@ -74,7 +74,7 @@ public class DataChart {
     public VBox get_chart_VBox()
     {
         HBox hbox1 = new HBox(this.animals_number, this.plants_number);
-        hbox1.setSpacing(10);
+        hbox1.setSpacing(30);
         hbox1.setAlignment(Pos.CENTER);
         HBox hbox2 = new HBox(this.averageEnergy, this.averageChildren, this.averageLifeLength);
         hbox2.setSpacing(10);

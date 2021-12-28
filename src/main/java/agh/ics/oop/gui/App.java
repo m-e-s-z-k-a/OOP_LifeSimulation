@@ -67,35 +67,35 @@ public class App  extends Application implements ISimulationUpdate
             threadzik2 = new Thread(this.engine2);
             threadzik2.start();
             ToggleButton button_pause1 = new ToggleButton("start/pause");
+            Button button_save1 = new Button("save to CSV file");
             ToggleButton button_pause2 = new ToggleButton("start/pause");
+            Button button_save2 = new Button("save to CSV file");
             button_pause1.setOnAction(e1 ->
             {
                 this.engine1.pauseandrun();
+                button_save1.setOnAction(ev1 ->
+                {
+                    try {
+                        this.fileData1.exportToCSV();
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                    }
+                });
             });
             button_pause2.setOnAction(e2 ->
             {
                 this.engine2.pauseandrun();
+                button_save2.setOnAction(ev1 ->
+                {
+                    try {
+                        this.fileData2.exportToCSV();
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                    }
+                });
             });
             button_pause1.setAlignment(Pos.CENTER);
             button_pause2.setAlignment(Pos.CENTER);
-            Button button_save1 = new Button("save to CSV file");
-            Button button_save2 = new Button("save to CSV file");
-            button_save1.setOnAction(ev1 ->
-            {
-                try {
-                    this.fileData1.exportToCSV();
-                } catch (IOException ex) {
-                    ex.printStackTrace();
-                }
-            });
-            button_save2.setOnAction(ev1 ->
-            {
-                try {
-                    this.fileData2.exportToCSV();
-                } catch (IOException ex) {
-                    ex.printStackTrace();
-                }
-            });
             HBox buttons_hbox1 = new HBox(button_pause1, button_save1);
             buttons_hbox1.setAlignment(Pos.CENTER);
             buttons_hbox1.setSpacing(5);
@@ -124,6 +124,7 @@ public class App  extends Application implements ISimulationUpdate
         int startEnergy = Integer.parseInt(welcomeScreen.startenergybox.textField.getText());
         double jungleRatio = Double.parseDouble(welcomeScreen.jungleratiobox.textField.getText());
         int startAnimalsNumber = Integer.parseInt(welcomeScreen.startanimalsnumberbox.textField.getText());
+        boolean isMagicGameplayOn = welcomeScreen.checkbox.isSelected();
         Vector2d[] positions = { new Vector2d(2,2), new Vector2d(3,4),  new Vector2d(3,4)};
         this.bordersmap = new BordersMap(width, height, jungleRatio, plantEnergy, energyLoss, startEnergy);
         this.gridPane1 = new GridPane();
@@ -131,7 +132,7 @@ public class App  extends Application implements ISimulationUpdate
         this.dataChart1 = new DataChart(this.bordersmap);
         this.text1 = new GenotypeText(this.bordersmap);
         this.fileData1 = new FileData(this.bordersmap);
-        this.engine1 = new SimulationEngine(this.bordersmap, startAnimalsNumber, this.gridPane1, this.dataChart1, this.text1, this.fileData1);
+        this.engine1 = new SimulationEngine(this.bordersmap, startAnimalsNumber, isMagicGameplayOn, this.gridPane1, this.dataChart1, this.text1, this.fileData1);
         this.engine1.addObserver(this);
         this.foldablemap = new FoldableMap(width, height, jungleRatio, plantEnergy, energyLoss, startEnergy);
         this.gridPane2 = new GridPane();
@@ -139,7 +140,7 @@ public class App  extends Application implements ISimulationUpdate
         this.dataChart2 = new DataChart(this.foldablemap);
         this.text2 = new GenotypeText(this.foldablemap);
         this.fileData2 = new FileData(this.foldablemap);
-        this.engine2 = new SimulationEngine(this.foldablemap, startAnimalsNumber, this.gridPane2, this.dataChart2, this.text2, this.fileData2);
+        this.engine2 = new SimulationEngine(this.foldablemap, startAnimalsNumber, isMagicGameplayOn, this.gridPane2, this.dataChart2, this.text2, this.fileData2);
         this.engine2.addObserver(this);
     }
 

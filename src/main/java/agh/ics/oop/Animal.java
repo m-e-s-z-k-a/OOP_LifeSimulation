@@ -86,6 +86,14 @@ public class Animal {
         {
             position = new Vector2d(0, 0);
         }
+        else if(position.x > this.map.upper_right.x && position.y < this.map.lower_left.y)
+        {
+            position = new Vector2d(0, this.map.upper_right.y);
+        }
+        else if(position.x < this.map.lower_left.x && position.y> this.map.upper_right.y)
+        {
+            position = new Vector2d(this.map.upper_right.x, 0);
+        }
         else if (position.x > this.map.upper_right.x)
         {
             position = new Vector2d(0, position.y);

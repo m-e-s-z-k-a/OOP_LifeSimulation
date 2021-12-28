@@ -5,9 +5,7 @@ import agh.ics.oop.gui.FileData;
 import agh.ics.oop.gui.GenotypeText;
 import javafx.scene.layout.GridPane;
 
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.Random;
+import java.util.*;
 
 import static java.lang.System.out;
 
@@ -20,14 +18,19 @@ public class SimulationEngine implements IEngine, Runnable
     private boolean pause = false;
     private Object lock = this;
     private DataChart dataChart;
+    private boolean isMagicGameplayOn;
     private GenotypeText text;
     private FileData fileData;
     private int animals_to_start_with;
     private LinkedList<ISimulationUpdate> observers;
-    public SimulationEngine(AbstractMap map, int start_animals_number, GridPane gridPane, DataChart dataChart, GenotypeText text, FileData fileData)
+    private int timesMagicUsed = 0;
+    private LinkedHashMap<Vector2d, ArrayList<Animal>> animals;
+    public SimulationEngine(AbstractMap map, int start_animals_number, boolean isMagic, GridPane gridPane, DataChart dataChart, GenotypeText text, FileData fileData)
     {
         this.map = map;
+        this.isMagicGameplayOn = isMagic;
         this.text = text;
+        this.animals = this.map.animals;
         this.fileData = fileData;
         this.animals_to_start_with = start_animals_number;
         this.running = true;
@@ -62,10 +65,22 @@ public class SimulationEngine implements IEngine, Runnable
         }
     }
 
-
     public void addObserver(ISimulationUpdate new_observer)
     {
         this.observers.add(new_observer);
+    }
+
+    public ArrayList<int[]> magic_get_genotypes()
+    {
+        ArrayList<int[]> copied_genes = new ArrayList<>();
+        for(Vector2d animal_positions: this.animals.keySet())
+        {
+            for(Animal animals_to_copy_genes: this.animals.get(animal_positions))
+            {
+                copied_genes.add(animals_to_copy_genes.getGenotype());
+            }
+        }
+        return copied_genes;
     }
 
     public void pause()
@@ -125,6 +140,23 @@ public class SimulationEngine implements IEngine, Runnable
             this.map.day_passing();
             daysPassed += 1;
             this.mapUpdate();
+            if(this.map.animals_number == 5 && this.isMagicGameplayOn && timesMagicUsed < 3)
+            {
+                int animals_placed = 0;
+                timesMagicUsed -= 1;
+                do {
+                    int x_coord = new Random().nextInt(this.map.width);
+                    int y_coord = new Random().nextInt(this.map.height);
+                    Vector2d init_position = new Vector2d(x_coord, y_coord);
+                    if (!this.map.isOccupied(init_position)) {
+                        int new_animal_direction = new Random().nextInt(8);
+                        int[] genotype = this.magic_get_genotypes().get(animals_placed);
+                        Animal animal = new Animal(this.map, init_position, genotype, this.map.startEnergy, new_animal_direction);
+                        this.map.place(animal);
+                        animals_placed += 1;
+                    }
+                }while (animals_placed < 5);
+            }
         }while (!(this.map.animals.isEmpty()));
         return;
     }
