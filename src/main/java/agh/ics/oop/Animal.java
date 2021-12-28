@@ -229,18 +229,5 @@ public class Animal {
         return this.map.startEnergy;
     }
 
-    public String getUrl(){
-            if ((double)this.energy >= 0.8*(double)this.map.startEnergy)
-                return "src/main/resources/kropa_duzoenergii.png";
-            else if ((double)this.energy >= 0.6*(double)this.map.startEnergy)
-                return "src/main/resources/kropa_srednioenergii.png";
-            else if ((double)this.energy >= 0.4*(double)this.map.startEnergy)
-                return "src/main/resources/kropa_maloenergii.png";
-            else if ((double)this.energy >= 0.2*(double)this.map.startEnergy)
-                return "src/main/resources/kropa_bmaloenergii.png";
-            else
-                return "src/main/resources/kropa_smierc.png";
-
-        }
 
 }

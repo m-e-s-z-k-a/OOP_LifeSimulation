@@ -462,20 +462,15 @@ public abstract class AbstractMap implements IWorldMap, IPositionChangeObserver 
         eatingPlants();
         copulate();
         seedPlants();
+        if (this.animals_number != 0){
         this.averageChildrenNumber = (float)this.daily_children_number/this.animals_number;
-        this.averageEnergy = (float)this.sum_daily_energy/this.animals_number;
+        this.averageEnergy = (float)this.sum_daily_energy/this.animals_number;}
         if(this.dead_number != 0)
             this.averageLifeLengthDead = (float)this.sumLifeLengthDead/this.dead_number;
         this.daysPassed += 1;
-        //this.dominant_genotype = Collections.max(this.genotypes.entrySet(), Map.Entry.comparingByValue()).getKey();
-   //     out.println(Arrays.toString(this.dominant_genotype));
         this.dominant_genotype = this.find_the_dominant();
     }
 
-    public int[] swap_dominant_genotype(int[] old_genotype, int[] new_genotype)
-    {
-        return new_genotype;
-    }
 
     public int[] find_the_dominant()
     {
@@ -569,6 +564,17 @@ public abstract class AbstractMap implements IWorldMap, IPositionChangeObserver 
         return this.plants;
     }
 
+    public String getMapType()
+    {
+        if (this instanceof FoldableMap)
+        {
+            return "FoldableMap";
+        }
+        else
+        {
+            return "BordersMap";
+        }
+    }
 
 }
 

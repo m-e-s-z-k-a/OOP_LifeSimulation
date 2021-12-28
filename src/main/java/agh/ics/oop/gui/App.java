@@ -15,6 +15,7 @@ import javafx.scene.control.Label;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -30,6 +31,8 @@ public class App  extends Application implements ISimulationUpdate
     private DataChart dataChart2;
     private GenotypeText text1;
     private GenotypeText text2;
+    private FileData fileData1;
+    private FileData fileData2;
     private LinkedHashMap<Vector2d, ArrayList<Animal>> animals;
     private LinkedHashMap<Vector2d, Plant> plants;
     private GridPane gridPane1;
@@ -55,10 +58,12 @@ public class App  extends Application implements ISimulationUpdate
             set_the_map(this.foldablemap, gridPane2);
             this.dataChart1.updateCharts();
             this.text1.updateGenDominant();
+            this.fileData1.updateFileData();
             threadzik = new Thread(this.engine1);
             threadzik.start();
             this.dataChart2.updateCharts();
             this.text2.updateGenDominant();
+            this.fileData2.updateFileData();
             threadzik2 = new Thread(this.engine2);
             threadzik2.start();
             ToggleButton button_pause1 = new ToggleButton("start/pause");
@@ -73,8 +78,32 @@ public class App  extends Application implements ISimulationUpdate
             });
             button_pause1.setAlignment(Pos.CENTER);
             button_pause2.setAlignment(Pos.CENTER);
-            VBox first_map_vbox = new VBox(gridPane1, button_pause1, dataChart1.get_chart_VBox(), text1.getGenDominant());
-            VBox second_map_vbox = new VBox(gridPane2, button_pause2, dataChart2.get_chart_VBox(), text2.getGenDominant());
+            Button button_save1 = new Button("save to CSV file");
+            Button button_save2 = new Button("save to CSV file");
+            button_save1.setOnAction(ev1 ->
+            {
+                try {
+                    this.fileData1.exportToCSV();
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
+            });
+            button_save2.setOnAction(ev1 ->
+            {
+                try {
+                    this.fileData2.exportToCSV();
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
+            });
+            HBox buttons_hbox1 = new HBox(button_pause1, button_save1);
+            buttons_hbox1.setAlignment(Pos.CENTER);
+            buttons_hbox1.setSpacing(5);
+            HBox buttons_hbox2 = new HBox(button_pause2, button_save2);
+            buttons_hbox2.setAlignment(Pos.CENTER);
+            buttons_hbox2.setSpacing(5);
+            VBox first_map_vbox = new VBox(gridPane1, buttons_hbox1, dataChart1.get_chart_VBox(), text1.getGenDominantHBox());
+            VBox second_map_vbox = new VBox(gridPane2, buttons_hbox2, dataChart2.get_chart_VBox(), text2.getGenDominantHBox());
             first_map_vbox.setSpacing(20);
             second_map_vbox.setSpacing(20);
             HBox map_hbox = new HBox(first_map_vbox, second_map_vbox);
@@ -101,14 +130,16 @@ public class App  extends Application implements ISimulationUpdate
         this.gridPane1.setAlignment(Pos.CENTER);
         this.dataChart1 = new DataChart(this.bordersmap);
         this.text1 = new GenotypeText(this.bordersmap);
-        this.engine1 = new SimulationEngine(this.bordersmap, startAnimalsNumber, this.gridPane1, this.dataChart1, this.text1);
+        this.fileData1 = new FileData(this.bordersmap);
+        this.engine1 = new SimulationEngine(this.bordersmap, startAnimalsNumber, this.gridPane1, this.dataChart1, this.text1, this.fileData1);
         this.engine1.addObserver(this);
         this.foldablemap = new FoldableMap(width, height, jungleRatio, plantEnergy, energyLoss, startEnergy);
         this.gridPane2 = new GridPane();
         this.gridPane2.setAlignment(Pos.CENTER);
         this.dataChart2 = new DataChart(this.foldablemap);
         this.text2 = new GenotypeText(this.foldablemap);
-        this.engine2 = new SimulationEngine(this.foldablemap, startAnimalsNumber, this.gridPane2, this.dataChart2, this.text2);
+        this.fileData2 = new FileData(this.foldablemap);
+        this.engine2 = new SimulationEngine(this.foldablemap, startAnimalsNumber, this.gridPane2, this.dataChart2, this.text2, this.fileData2);
         this.engine2.addObserver(this);
     }
 
@@ -167,13 +198,14 @@ public class App  extends Application implements ISimulationUpdate
         }
     }
 
-    public void mapUpdate(AbstractMap map, GridPane gridPane, SimulationEngine engine, DataChart dataChart, GenotypeText text)
+    public void mapUpdate(AbstractMap map, GridPane gridPane, SimulationEngine engine, DataChart dataChart, GenotypeText text, FileData fileData)
     {
         Platform.runLater(()->{
             gridPane.setGridLinesVisible(false);
             set_the_map(map, gridPane);
             text.updateGenDominant();
             dataChart.updateCharts();
+            fileData.updateFileData();
         });
     }
 

@@ -1,7 +1,11 @@
 package agh.ics.oop.gui;
 
 import agh.ics.oop.AbstractMap;
+import javafx.geometry.Pos;
+import javafx.scene.layout.HBox;
 import javafx.scene.text.Text;
+import javafx.scene.text.TextAlignment;
+
 import java.util.Arrays;
 
 import static java.lang.System.out;
@@ -21,8 +25,11 @@ public class GenotypeText {
         this.text.setText(this.map.getDomGen());
     }
 
-    public Text getGenDominant()
+    public HBox getGenDominantHBox()
     {
-        return this.text;
+        this.text.setTextAlignment(TextAlignment.CENTER);
+        HBox hbox = new HBox(this.text);
+        hbox.setAlignment(Pos.CENTER);
+        return hbox;
     }
 }

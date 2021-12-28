@@ -1,6 +1,7 @@
 package agh.ics.oop;
 
 import agh.ics.oop.gui.DataChart;
+import agh.ics.oop.gui.FileData;
 import agh.ics.oop.gui.GenotypeText;
 import javafx.scene.layout.GridPane;
 
@@ -20,12 +21,14 @@ public class SimulationEngine implements IEngine, Runnable
     private Object lock = this;
     private DataChart dataChart;
     private GenotypeText text;
+    private FileData fileData;
     private int animals_to_start_with;
     private LinkedList<ISimulationUpdate> observers;
-    public SimulationEngine(AbstractMap map, int start_animals_number, GridPane gridPane, DataChart dataChart, GenotypeText text)
+    public SimulationEngine(AbstractMap map, int start_animals_number, GridPane gridPane, DataChart dataChart, GenotypeText text, FileData fileData)
     {
         this.map = map;
         this.text = text;
+        this.fileData = fileData;
         this.animals_to_start_with = start_animals_number;
         this.running = true;
         this.pause = false;
@@ -55,7 +58,7 @@ public class SimulationEngine implements IEngine, Runnable
     {
         for (ISimulationUpdate observer: this.observers)
         {
-            observer.mapUpdate(this.map, this.gridPane, this, this.dataChart, text);
+            observer.mapUpdate(this.map, this.gridPane, this, this.dataChart, text, fileData);
         }
     }
 
@@ -70,23 +73,6 @@ public class SimulationEngine implements IEngine, Runnable
         pause = true;
     }
 
-    public void toggle()
-    {
-        if(!this.pause)
-        {
-            this.pause = true;
-        }
-        else
-        {
-            synchronized (this.lock)
-            {
-                this.pause = false;
-                this.lock.notifyAll();
-            }
-        }
-    }
-
-
     public void resume()
     {
         synchronized(lock)
@@ -95,12 +81,6 @@ public class SimulationEngine implements IEngine, Runnable
             this.lock.notifyAll();
         }
     }
-
-    public int getDayCount()
-    {
-        return this.daysPassed;
-    }
-
 
     public void pauseandrun()
     {
