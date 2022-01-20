@@ -7,7 +7,7 @@ import static java.lang.System.out;
 
 public abstract class AbstractMap implements IWorldMap, IPositionChangeObserver {
 
-    protected int width;
+    protected int width;    // czy to i większość poniższych pól nie powinna być finalna
     protected int height;
     protected double jungleRatio;
     protected Vector2d upper_right;
@@ -28,7 +28,7 @@ public abstract class AbstractMap implements IWorldMap, IPositionChangeObserver 
     protected float averageLifeLengthDead;
     protected int sum_daily_energy;
     protected int daysPassed;
-    int[] dominant_genotype = new int[32];
+    int[] dominant_genotype = new int[32];  // czy to jest zadanie dla mapy? i czy to jest właściwy modyfikator dostępu?
     protected LinkedHashMap<int[], Integer> genotypes = new LinkedHashMap<>();
     protected LinkedHashMap<Vector2d, ArrayList<Animal>> animals = new LinkedHashMap<>();
     protected LinkedHashMap<Vector2d, Plant> plants = new LinkedHashMap<>();
@@ -256,7 +256,7 @@ public abstract class AbstractMap implements IWorldMap, IPositionChangeObserver 
                 if ((double) the_couple.get(0).getEnergy() >= (double) this.startEnergy / 2 && (double) the_couple.get(1).getEnergy() >= (double) this.startEnergy / 2) {
                     int[] new_animal_genotype = distribute_the_genes(the_couple);
                     int child_energy = 0;
-                    boolean celebrity_child = false;
+                    boolean celebrity_child = false;    // za miesiąc będzie Pani rozumiała tę nazwę?
                     boolean distant_celebrity_child = false;
                     for (Animal parent : the_couple) {
                         child_energy += ((0.25) * parent.getEnergy());
@@ -442,7 +442,7 @@ public abstract class AbstractMap implements IWorldMap, IPositionChangeObserver 
         return this.averageEnergy;
     }
 
-    public float getAverageLifeLengthDead() {
+    public float getAverageLifeLengthDead() {   // czy to jest zadanie dla mapy?
         return this.averageLifeLengthDead;
     }
 

@@ -10,10 +10,7 @@ public class BordersMap extends AbstractMap implements IWorldMap {
 
     public boolean canMoveTo(Vector2d position)
     {
-        if (!(position.follows(this.lower_left) && position.precedes(this.upper_right)))
-            return false;
-        else
-            return true;
+        return position.follows(this.lower_left) && position.precedes(this.upper_right);    // IntelliJ to zrobił
 
     }
 

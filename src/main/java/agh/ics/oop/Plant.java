@@ -3,8 +3,8 @@ package agh.ics.oop;
 public class Plant {
 
     private final Vector2d plant_position;
-    private int energy;
-    private AbstractMap map;
+    private int energy; // właściwie też final
+    private AbstractMap map;    // nie lepiej sobie zapamiętać tylko, czy jest w dżungli?
 
     public Plant(AbstractMap map, Vector2d grass_position, int energy)
     {
@@ -28,7 +28,7 @@ public class Plant {
         return "*";
     }
 
-    public boolean isInJungle()
+    public boolean isInJungle() // a czemu trawa powinna to wiedzieć?
     {
         return this.map.isInJungle(this.plant_position);
     }

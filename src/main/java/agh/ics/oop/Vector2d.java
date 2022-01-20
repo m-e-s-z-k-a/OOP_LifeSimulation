@@ -14,7 +14,7 @@ public class Vector2d {
 
     public String toString()
     {
-        return ("(" + this.x + ", " + this.y + ")");
+        return ("(" + this.x + ", " + this.y + ")");    // String.format
     }
 
     public boolean precedes(Vector2d other)
